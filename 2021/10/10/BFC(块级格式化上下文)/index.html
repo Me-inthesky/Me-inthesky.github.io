@@ -20,15 +20,15 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
-<meta name="description" content="title：BFC与IFCBFC(块级格式化上下文)1.特点 盒子是从包含块顶部开始一个挨着一个布局的，盒子垂直方向的距离由margin决定，属于同一个BFC的两个相邻Box的上下margin会发生重叠； 水平方向上，每个盒子的左边缘都会接触包含块的左边缘（从右向左的格式则相反） BFC的区域不会与float重叠； BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素。反之">
+<meta name="description" content="BFC(块级格式化上下文)1.特点 盒子是从包含块顶部开始一个挨着一个布局的，盒子垂直方向的距离由margin决定，属于同一个BFC的两个相邻Box的上下margin会发生重叠； 水平方向上，每个盒子的左边缘都会接触包含块的左边缘（从右向左的格式则相反） BFC的区域不会与float重叠； BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素。反之也如此； 计算BFC的高度时">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hexo">
+<meta property="og:title" content="第二篇文章">
 <meta property="og:url" content="http://example.com/2021/10/10/BFC(%E5%9D%97%E7%BA%A7%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%B8%8A%E4%B8%8B%E6%96%87)/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="title：BFC与IFCBFC(块级格式化上下文)1.特点 盒子是从包含块顶部开始一个挨着一个布局的，盒子垂直方向的距离由margin决定，属于同一个BFC的两个相邻Box的上下margin会发生重叠； 水平方向上，每个盒子的左边缘都会接触包含块的左边缘（从右向左的格式则相反） BFC的区域不会与float重叠； BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素。反之">
+<meta property="og:description" content="BFC(块级格式化上下文)1.特点 盒子是从包含块顶部开始一个挨着一个布局的，盒子垂直方向的距离由margin决定，属于同一个BFC的两个相邻Box的上下margin会发生重叠； 水平方向上，每个盒子的左边缘都会接触包含块的左边缘（从右向左的格式则相反） BFC的区域不会与float重叠； BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素。反之也如此； 计算BFC的高度时">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2021-10-10T08:55:43.032Z">
-<meta property="article:modified_time" content="2021-10-10T11:49:39.089Z">
+<meta property="article:published_time" content="2021-10-10T06:30:58.000Z">
+<meta property="article:modified_time" content="2021-10-10T11:52:06.344Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
 
@@ -37,10 +37,10 @@
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2021/10/10/BFC(%E5%9D%97%E7%BA%A7%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%B8%8A%E4%B8%8B%E6%96%87)/","path":"2021/10/10/BFC(块级格式化上下文)/","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2021/10/10/BFC(%E5%9D%97%E7%BA%A7%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%B8%8A%E4%B8%8B%E6%96%87)/","path":"2021/10/10/BFC(块级格式化上下文)/","title":"第二篇文章"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title> | Hexo</title>
+<title>第二篇文章 | Hexo</title>
   
 
 
@@ -107,7 +107,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#title%EF%BC%9ABFC%E4%B8%8EIFC"><span class="nav-number">1.</span> <span class="nav-text">title：BFC与IFC</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#BFC-%E5%9D%97%E7%BA%A7%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="nav-number"></span> <span class="nav-text">BFC(块级格式化上下文)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E7%89%B9%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">1.特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BA%A7%E7%94%9F%E6%9D%A1%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">2.产生条件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IFC-%E8%A1%8C%E5%86%85%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="nav-number"></span> <span class="nav-text">IFC(行内格式化上下文)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E8%A1%8C%E6%A1%86"><span class="nav-number">1.</span> <span class="nav-text">1.行框</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%89%B9%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">2.特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E4%BA%A7%E7%94%9F%E6%9D%A1%E4%BB%B6"><span class="nav-number">3.</span> <span class="nav-text">3.产生条件</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#BFC-%E5%9D%97%E7%BA%A7%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="nav-number">1.</span> <span class="nav-text">BFC(块级格式化上下文)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E7%89%B9%E7%82%B9"><span class="nav-number">1.1.</span> <span class="nav-text">1.特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BA%A7%E7%94%9F%E6%9D%A1%E4%BB%B6"><span class="nav-number">1.2.</span> <span class="nav-text">2.产生条件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IFC-%E8%A1%8C%E5%86%85%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="nav-number">2.</span> <span class="nav-text">IFC(行内格式化上下文)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E8%A1%8C%E6%A1%86"><span class="nav-number">2.1.</span> <span class="nav-text">1.行框</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%89%B9%E7%82%B9"><span class="nav-number">2.2.</span> <span class="nav-text">2.特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E4%BA%A7%E7%94%9F%E6%9D%A1%E4%BB%B6"><span class="nav-number">2.3.</span> <span class="nav-text">3.产生条件</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -120,7 +120,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-count">2</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -173,7 +173,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          
+          第二篇文章
         </h1>
 
         <div class="post-meta-container">
@@ -185,7 +185,7 @@
       <span class="post-meta-item-text">Posted on</span>
       
 
-      <time title="Created: 2021-10-10 16:55:43 / Modified: 19:49:39" itemprop="dateCreated datePublished" datetime="2021-10-10T16:55:43+08:00">2021-10-10</time>
+      <time title="Created: 2021-10-10 14:30:58 / Modified: 19:52:06" itemprop="dateCreated datePublished" datetime="2021-10-10T14:30:58+08:00">2021-10-10</time>
     </span>
 
   
@@ -198,8 +198,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <hr>
-<h2 id="title：BFC与IFC"><a href="#title：BFC与IFC" class="headerlink" title="title：BFC与IFC"></a>title：BFC与IFC</h2><h1 id="BFC-块级格式化上下文"><a href="#BFC-块级格式化上下文" class="headerlink" title="BFC(块级格式化上下文)"></a>BFC(块级格式化上下文)</h1><h2 id="1-特点"><a href="#1-特点" class="headerlink" title="1.特点"></a>1.特点</h2><ul>
+        <h1 id="BFC-块级格式化上下文"><a href="#BFC-块级格式化上下文" class="headerlink" title="BFC(块级格式化上下文)"></a>BFC(块级格式化上下文)</h1><h2 id="1-特点"><a href="#1-特点" class="headerlink" title="1.特点"></a>1.特点</h2><ul>
 <li>盒子是从包含块顶部开始一个挨着一个布局的，盒子垂直方向的距离由margin决定，<strong>属于同一个BFC的两个相邻Box的上下margin会发生重叠</strong>；</li>
 <li>水平方向上，每个盒子的左边缘都会接触包含块的左边缘（从右向左的格式则相反）</li>
 <li>BFC的区域不会与float重叠；</li>
@@ -247,6 +246,15 @@
 
         
 
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/10/10/%E7%AC%AC%E4%BA%8C%E7%AF%87/" rel="prev" title="第二篇文章">
+                  <i class="fa fa-chevron-left"></i> 第二篇文章
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
     </footer>
   </article>
 </div>
