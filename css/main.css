@@ -2773,3 +2773,16 @@ ul.breadcrumb li:last-child {
     padding: 10px 12px;
   }
 }
+body {
+  background: url("/images/ironman.jpg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: 50% 50%;
+  background-size: 100% 100%;
+}
+.header {
+  opacity: 0.85;
+}
+.main-inner {
+  opacity: 0.85;
+}
