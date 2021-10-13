@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>BFC与IFC</title>
+    <url>/2021/10/10/BFC(%E5%9D%97%E7%BA%A7%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%B8%8A%E4%B8%8B%E6%96%87)/</url>
+    <content><![CDATA[<h1 id="BFC-块级格式化上下文"><a href="#BFC-块级格式化上下文" class="headerlink" title="BFC(块级格式化上下文)"></a>BFC(块级格式化上下文)</h1><h2 id="1-特点"><a href="#1-特点" class="headerlink" title="1.特点"></a>1.特点</h2><ul>
+<li>盒子是从包含块顶部开始一个挨着一个布局的，盒子垂直方向的距离由margin决定，<strong>属于同一个BFC的两个相邻Box的上下margin会发生重叠</strong>；</li>
+<li>水平方向上，每个盒子的左边缘都会接触包含块的左边缘（从右向左的格式则相反）</li>
+<li>BFC的区域不会与float重叠；</li>
+<li><strong>BFC就是页面上的一个隔离的独立容器</strong>，容器里面的子元素不会影响到外面的元素。反之也如此；</li>
+<li>计算BFC的高度时，浮动元素也参与计算；</li>
+</ul>
+<h2 id="2-产生条件"><a href="#2-产生条件" class="headerlink" title="2.产生条件"></a>2.产生条件</h2><ul>
+<li>float的属性不为none；</li>
+<li>position为absolute或fixed；</li>
+<li>display为inline-block。table-cell，table-caption，flex；</li>
+<li>overflow不为visible(overflow默认值是visible)</li>
+<li>根元素&lt;html&gt;</li>
+</ul>
+<h1 id="IFC-行内格式化上下文"><a href="#IFC-行内格式化上下文" class="headerlink" title="IFC(行内格式化上下文)"></a>IFC(行内格式化上下文)</h1><h2 id="1-行框"><a href="#1-行框" class="headerlink" title="1.行框"></a>1.行框</h2><p>IFC内联元素对齐完之后形成的四方块儿区域，叫做一个line box(行框)。行框不是内联元素的父元素</p>
+<p>宽度：由包含它的元素的宽度和包含它的元素里面有没有float元素来决定（其实就是父元素的宽）</p>
+<p>高度：由内部元素中实际高度最高的元素而计算出来。</p>
+<h2 id="2-特点"><a href="#2-特点" class="headerlink" title="2.特点"></a>2.特点</h2><ul>
+<li><p>高度计算：由line-height决定(line-height是vertical-align参考的边界值)</p>
+</li>
+<li><p>水平排列，margin，padding，border可以设置，但垂直方向上不算入高度。但无法设置width和height</p>
+</li>
+<li><p>垂直居中：当父元素没有设置高度时，内部所有元素(内联元素)设置verticle-align:middle后，将会居中对齐</p>
+<p>​                    当设置了父元素高度后，内联元素居中对齐，但整体没有在父元素中居中。整体设置line-height=父元素height后(此时IFC高度等于父元素高度)才会在父元素上居中对齐</p>
+<p>​                    (某个内联元素的高&lt;行框高，垂直方向上的位置由verticle-align决定)</p>
+</li>
+<li><p>水平居中：设置父元素为text-align：center；</p>
+<p>(行框的宽&gt;行框中内联元素的宽，水平方向上的位置由text-align决定)</p>
+</li>
+</ul>
+<h2 id="3-产生条件"><a href="#3-产生条件" class="headerlink" title="3.产生条件"></a>3.产生条件</h2><ul>
+<li>font-size</li>
+<li>line-height</li>
+<li>height</li>
+<li>verticle-align</li>
+<li>display：inline-block和line</li>
+</ul>
+<h1 id="清除浮动"><a href="#清除浮动" class="headerlink" title="清除浮动"></a>清除浮动</h1><p>参考地址：<a href="https://www.cnblogs.com/lauzhishuai/p/10953608.html">https://www.cnblogs.com/lauzhishuai/p/10953608.html</a></p>
+<h2 id="1-为什么要清除浮动"><a href="#1-为什么要清除浮动" class="headerlink" title="1.为什么要清除浮动"></a>1.为什么要清除浮动</h2><figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;topDiv&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;floatDiv&quot;</span>&gt;</span>float left<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;textDiv&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;bottomDiv&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="../images/image-20211010222612549.png" alt="image-20211010222612549"></p>
+<p>上图为不清除浮动所造成的问题：</p>
+<ol>
+<li>由于.textDiv两旁存在浮动，蓝色文字围绕浮动元素排列，但我们可能希望文字在下方单独排列。</li>
+<li>浮动元素超出父元素的高度，并没有撑开父元素，若没有.textDiv，则父元素的高度将会为0。</li>
+<li>浮动元素影响了父元素的兄弟元素(黑色文本)的排版。</li>
+</ol>
+<h2 id="2-清除浮动的方法"><a href="#2-清除浮动的方法" class="headerlink" title="2.清除浮动的方法"></a>2.清除浮动的方法</h2><h3 id="2-1-利用clear"><a href="#2-1-利用clear" class="headerlink" title="2.1 利用clear"></a>2.1 利用clear</h3><p>给需要清除浮动的元素添加如下样式：</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.textDiv</span> &#123;</span><br><span class="line">    <span class="attribute">color</span>: blue;</span><br><span class="line">    <span class="attribute">border</span>: <span class="number">2px</span> solid blue;</span><br><span class="line">    <span class="attribute">clear</span>: left;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>缺点：如果产生浮动的元素在文本后面，则此方法不行，就算用了clear:right也不行。</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;topDiv&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;textDiv&quot;</span>&gt;</span>..........<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;floatDiv&quot;</span>&gt;</span>float left<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;bottomDiv&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以用如下方法</p>
+<h3 id="2-2-添加空白块级元素"><a href="#2-2-添加空白块级元素" class="headerlink" title="2.2 添加空白块级元素"></a>2.2 添加空白块级元素</h3><p>在父级元素末尾插入一个没有内容的<strong>块级元素</strong>(一定要是块级元素)div，并清除周边浮动</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;topDiv&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;textDiv&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;floatDiv&quot;</span>&gt;</span>float left<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;blankDiv&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;bottomDiv&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.blankDiv</span> &#123;</span><br><span class="line">    <span class="attribute">clear</span>: both;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-利用伪元素"><a href="#2-3-利用伪元素" class="headerlink" title="2.3 利用伪元素"></a>2.3 利用伪元素</h3><p>在父元素上添加一个类(如下)，通过伪元素在需要清除浮动的元素的父元素末尾添加一个块来清除浮动。(原理同2.2)</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.clearfix</span>:after &#123;</span><br><span class="line">    content: <span class="string">&#x27;.&#x27;</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">display</span>: block;</span><br><span class="line">    <span class="attribute">clear</span>: both;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-利用BFC"><a href="#2-4-利用BFC" class="headerlink" title="2.4 利用BFC"></a>2.4 利用BFC</h3><p>将需要清除浮动的元素的父元素设置为BFC，BFC的一条特性为：计算BFC的高度时，浮动元素也参与计算。</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.topDiv</span> &#123;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">500px</span>;</span><br><span class="line">    <span class="attribute">padding</span>: <span class="number">4px</span>;</span><br><span class="line">    <span class="attribute">border</span>: <span class="number">2px</span> solid black;</span><br><span class="line"> </span><br><span class="line">    <span class="attribute">overflow</span>: auto; //此时产生BFC</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>循环遍历加监听的问题</title>
+    <url>/2021/10/11/%E5%BE%AA%E7%8E%AF%E9%81%8D%E5%8E%86%E5%8A%A0%E7%9B%91%E5%90%AC/</url>
+    <content><![CDATA[<h2 id="1-用var失败的原因"><a href="#1-用var失败的原因" class="headerlink" title="1 用var失败的原因"></a>1 用var失败的原因</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> btns = <span class="built_in">document</span>.getElementsByTagName(<span class="string">&#x27;button&#x27;</span>);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>;i&lt;btns.length;i++)&#123;</span><br><span class="line">            btns[i].onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">                alert(i);</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>点击监听事件是异步执行的，当点击按钮执行相应函数之前，同步任务(循环)已经执行结束，此时在全局作用域下的 i 已经为固定值。执行alert(i)时，沿着作用域链找到全局作用域下的 i ，导致点击每个按钮得到的结果相同。</li>
+</ul>
+<h2 id="2-解决方法"><a href="#2-解决方法" class="headerlink" title="2 解决方法"></a>2 解决方法</h2><h3 id="2-1-添加属性"><a href="#2-1-添加属性" class="headerlink" title="2.1 添加属性"></a>2.1 添加属性</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>;i&lt;btns.length;i++)&#123;</span><br><span class="line">            btns[i].index = i;</span><br><span class="line">            btns[i].onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">                alert(<span class="built_in">this</span>.index);</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>原理：给每一个按钮绑定一个单独的属性，之后在执行点击监听的异步任务时，通过自己的属性来访问该值，不去访问全局作用域下的 i</p>
+<h3 id="2-2-立即执行函数"><a href="#2-2-立即执行函数" class="headerlink" title="2.2 立即执行函数"></a>2.2 立即执行函数</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> btns = <span class="built_in">document</span>.getElementsByTagName(<span class="string">&#x27;button&#x27;</span>);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>;i&lt;btns.length;i++)&#123;</span><br><span class="line">        (<span class="function"><span class="keyword">function</span> (<span class="params">i</span>) </span>&#123;</span><br><span class="line">            btns[i].onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">                alert(i);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)(i)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>原理：将每次执行for循环的 i 当作实参传入函数，在外部function函数中的 i 是局部变量，所以每次添加监听的 i 是不同的。由于闭包的原理，i 会一直存在，在执行点击的异步任务时可以访问到每个作用域下的 i</p>
+<h3 id="2-3-用let替换var"><a href="#2-3-用let替换var" class="headerlink" title="2.3 用let替换var"></a>2.3 用let替换var</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> btns = <span class="built_in">document</span>.getElementsByTagName(<span class="string">&#x27;button&#x27;</span>);</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> i = <span class="number">0</span>;i&lt;btns.length;i++)&#123;</span><br><span class="line">           btns[i].onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">               alert(i);</span><br><span class="line">           &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>原理：let发挥效果在块级作用域，每个for循环下的代码都在相互独立的块级作用域下，在执行点击监听函数时，内部function的 i 顺着作用域链不会找到全局作用域去，而是在块级作用域找到每个独立的 i</p>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+  </entry>
+</search>
