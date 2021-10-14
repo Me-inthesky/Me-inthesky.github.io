@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>闭包</title>
+    <url>/2021/10/13/%E9%97%AD%E5%8C%85/</url>
+    <content><![CDATA[<h1 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h1><h2 id="1-什么时闭包"><a href="#1-什么时闭包" class="headerlink" title="1. 什么时闭包"></a>1. 什么时闭包</h2><p>闭包就是将函数内部和函数外部连接起来的一座桥梁。<strong>闭包就是能够读取其他函数内部变量的函数</strong></p>
+<h2 id="2-闭包的产生与死亡"><a href="#2-闭包的产生与死亡" class="headerlink" title="2. 闭包的产生与死亡"></a>2. 闭包的产生与死亡</h2><ul>
+<li>产生：当一个嵌套的内部(子)函数引用了外部(父)函数的变量(函数)时，产生闭包</li>
+<li>死亡：内部函数成为垃圾对象时</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fn1</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> a=<span class="number">2</span> <span class="comment">//内部函数不需要调用，闭包此时产生</span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">fn2</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        a++ </span><br><span class="line">        <span class="built_in">console</span>.log(a)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> fn2</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> f=fn1() <span class="comment">//此时f一直指向fn2，闭包一直存在</span></span><br><span class="line">f() <span class="comment">//输出3</span></span><br><span class="line">f() <span class="comment">//输出4</span></span><br><span class="line">f=<span class="literal">null</span> <span class="comment">//fn2成为垃圾对象，闭包消失</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-作用"><a href="#3-作用" class="headerlink" title="3. 作用"></a>3. 作用</h2><ol>
+<li>使用函数内部的变量在函数执行完成后，仍然存活在内存中。(延长了局部变量的生命周期)</li>
+<li>让函数外部可以操作和读写函数内部的变量和函数。</li>
+</ol>
+<h2 id="4-缺点"><a href="#4-缺点" class="headerlink" title="4. 缺点"></a>4. 缺点</h2><ul>
+<li>函数执行完成后，内部的局部变量没有被释放，占用内存，同时占用时间变长。(可以通过fn=null，将fn2变为垃圾对象)</li>
+</ul>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+  </entry>
+  <entry>
     <title>BFC与IFC</title>
     <url>/2021/10/10/BFC(%E5%9D%97%E7%BA%A7%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%B8%8A%E4%B8%8B%E6%96%87)/</url>
     <content><![CDATA[<h1 id="BFC-块级格式化上下文"><a href="#BFC-块级格式化上下文" class="headerlink" title="BFC(块级格式化上下文)"></a>BFC(块级格式化上下文)</h1><h2 id="1-特点"><a href="#1-特点" class="headerlink" title="1.特点"></a>1.特点</h2><ul>
@@ -94,28 +116,6 @@
 <h3 id="2-3-用let替换var"><a href="#2-3-用let替换var" class="headerlink" title="2.3 用let替换var"></a>2.3 用let替换var</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> btns = <span class="built_in">document</span>.getElementsByTagName(<span class="string">&#x27;button&#x27;</span>);</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> i = <span class="number">0</span>;i&lt;btns.length;i++)&#123;</span><br><span class="line">           btns[i].onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">               alert(i);</span><br><span class="line">           &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
 <p>原理：let发挥效果在块级作用域，每个for循环下的代码都在相互独立的块级作用域下，在执行点击监听函数时，内部function的 i 顺着作用域链不会找到全局作用域去，而是在块级作用域找到每个独立的 i</p>
-]]></content>
-      <categories>
-        <category>前端</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>闭包</title>
-    <url>/2021/10/13/%E9%97%AD%E5%8C%85/</url>
-    <content><![CDATA[<h1 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h1><h2 id="1-什么时闭包"><a href="#1-什么时闭包" class="headerlink" title="1. 什么时闭包"></a>1. 什么时闭包</h2><p>闭包就是将函数内部和函数外部连接起来的一座桥梁。<strong>闭包就是能够读取其他函数内部变量的函数</strong></p>
-<h2 id="2-闭包的产生与死亡"><a href="#2-闭包的产生与死亡" class="headerlink" title="2. 闭包的产生与死亡"></a>2. 闭包的产生与死亡</h2><ul>
-<li>产生：当一个嵌套的内部(子)函数引用了外部(父)函数的变量(函数)时，产生闭包</li>
-<li>死亡：内部函数成为垃圾对象时</li>
-</ul>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fn1</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> a=<span class="number">2</span> <span class="comment">//内部函数不需要调用，闭包此时产生</span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">fn2</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        a++ </span><br><span class="line">        <span class="built_in">console</span>.log(a)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> fn2</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> f=fn1() <span class="comment">//此时f一直指向fn2，闭包一直存在</span></span><br><span class="line">f() <span class="comment">//输出3</span></span><br><span class="line">f() <span class="comment">//输出4</span></span><br><span class="line">f=<span class="literal">null</span> <span class="comment">//fn2成为垃圾对象，闭包消失</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="3-作用"><a href="#3-作用" class="headerlink" title="3. 作用"></a>3. 作用</h2><ol>
-<li>使用函数内部的变量在函数执行完成后，仍然存活在内存中。(延长了局部变量的生命周期)</li>
-<li>让函数外部可以操作和读写函数内部的变量和函数。</li>
-</ol>
-<h2 id="4-缺点"><a href="#4-缺点" class="headerlink" title="4. 缺点"></a>4. 缺点</h2><ul>
-<li>函数执行完成后，内部的局部变量没有被释放，占用内存，同时占用时间变长。(可以通过fn=null，将fn2变为垃圾对象)</li>
-</ul>
 ]]></content>
       <categories>
         <category>前端</category>
