@@ -76,6 +76,10 @@
       <categories>
         <category>前端</category>
       </categories>
+      <tags>
+        <tag>html</tag>
+        <tag>基础</tag>
+      </tags>
   </entry>
   <entry>
     <title>循环遍历加监听的问题</title>
@@ -98,6 +102,10 @@
       <categories>
         <category>前端</category>
       </categories>
+      <tags>
+        <tag>基础</tag>
+        <tag>js</tag>
+      </tags>
   </entry>
   <entry>
     <title>闭包</title>
@@ -120,6 +128,10 @@
       <categories>
         <category>前端</category>
       </categories>
+      <tags>
+        <tag>js</tag>
+        <tag>进阶</tag>
+      </tags>
   </entry>
   <entry>
     <title>获取异步操作的数据</title>
@@ -152,6 +164,10 @@
       <categories>
         <category>前端</category>
       </categories>
+      <tags>
+        <tag>js</tag>
+        <tag>进阶</tag>
+      </tags>
   </entry>
   <entry>
     <title>数据类型、转换、运算</title>
@@ -306,6 +322,10 @@
       <categories>
         <category>前端</category>
       </categories>
+      <tags>
+        <tag>基础</tag>
+        <tag>js</tag>
+      </tags>
   </entry>
   <entry>
     <title>变量声明、作用域、执行上下文</title>
@@ -396,7 +416,8 @@
         <category>前端</category>
       </categories>
       <tags>
-        <tag>JS 基础</tag>
+        <tag>基础</tag>
+        <tag>js</tag>
       </tags>
   </entry>
 </search>
