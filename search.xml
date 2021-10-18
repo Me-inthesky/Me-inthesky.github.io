@@ -1,223 +1,631 @@
 <?xml version="1.0" encoding="utf-8"?>
-<search> 
-  
-  
-    
-    <entry>
-      <title>async 与await</title>
-      <link href="/2021/10/17/async%E4%B8%8Eawait/"/>
-      <url>/2021/10/17/async%E4%B8%8Eawait/</url>
-      
-        <content type="html"><![CDATA[<h1 id="async-与await"><a href="#async-与await" class="headerlink" title="async 与await"></a>async 与await</h1><h3 id="1-async-与await"><a href="#1-async-与await" class="headerlink" title="1. async 与await"></a>1. async 与await</h3><ul><li>async修饰的函数，返回值会以Promise对象的形式返回</li></ul><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;aaaa&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">console</span>.log(test()) <span class="comment">//返回值为  Promise &#123;&#x27;aaaa&#x27;&#125;</span></span><br></pre></td></tr></table></figure><ul><li>在async修饰的函数中，通过await，得到的async修饰的函数的返回值将不会是Promise对象</li></ul><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;aaaa&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">main</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> data=<span class="keyword">await</span> test()</span><br><span class="line">    <span class="built_in">console</span>.log(data) <span class="comment">//返回值为 &#x27;aaaa&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>综上所述，获取异步数据：</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">var</span> name = <span class="string">&#x27;yzy&#x27;</span></span><br><span class="line">      resolve(name)</span><br><span class="line">    &#125;, <span class="number">1000</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">main</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> data = <span class="keyword">await</span> test()</span><br><span class="line">  <span class="built_in">console</span>.log(data) <span class="comment">//返回值为 &#x27;yzy&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">main()</span><br></pre></td></tr></table></figure><h3 id="2-原理"><a href="#2-原理" class="headerlink" title="2.原理"></a>2.原理</h3><p>​        当 async 函数执行到 await 的时候，会暂停整个async函数的执行进程并出让其控制权，只有当其等待的基于Promise 的异步操作被兑现或被拒绝之后才会恢复进程，由于该过程为异步操作，所以会先跳出该async函数执行其他代码，再回到await处。</p><p>​        即遇到await会阻塞后面的代码，但await会先执行所修饰函数中的同步任务，先执行async外面的同步代码，同步代码执行完，再回到async内部，继续执行await后面的代码。(也就是说，await只会阻塞当前async方法内的代码，不会影响外部代码的执行)</p><p>例子：</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;222&#x27;</span>)</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">       resolve(<span class="string">&#x27;444&#x27;</span>)</span><br><span class="line">    &#125;, <span class="number">1000</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">test2</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;111&#x27;</span>)</span><br><span class="line">  <span class="keyword">let</span> res = <span class="keyword">await</span> test()</span><br><span class="line">  <span class="built_in">console</span>.log(res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">test2()</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">&#x27;333&#x27;</span>)</span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;555&#x27;</span>)</span><br><span class="line">&#125;, <span class="number">1000</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">//执行顺序：111 222 333 444 555</span></span><br></pre></td></tr></table></figure>]]></content>
-      
-      
+<search>
+  <entry>
+    <title>BFC与IFC</title>
+    <url>/2021/10/10/BFC(%E5%9D%97%E7%BA%A7%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%B8%8A%E4%B8%8B%E6%96%87)/</url>
+    <content><![CDATA[<h1 id="BFC-块级格式化上下文"><a href="#BFC-块级格式化上下文" class="headerlink" title="BFC(块级格式化上下文)"></a>BFC(块级格式化上下文)</h1><h2 id="1-特点"><a href="#1-特点" class="headerlink" title="1.特点"></a>1.特点</h2><ul>
+<li>盒子是从包含块顶部开始一个挨着一个布局的，盒子垂直方向的距离由margin决定，<strong>属于同一个BFC的两个相邻Box的上下margin会发生重叠</strong>；</li>
+<li>水平方向上，每个盒子的左边缘都会接触包含块的左边缘（从右向左的格式则相反）</li>
+<li>BFC的区域不会与float重叠；</li>
+<li><strong>BFC就是页面上的一个隔离的独立容器</strong>，容器里面的子元素不会影响到外面的元素。反之也如此；</li>
+<li>计算BFC的高度时，浮动元素也参与计算；</li>
+</ul>
+<h2 id="2-产生条件"><a href="#2-产生条件" class="headerlink" title="2.产生条件"></a>2.产生条件</h2><ul>
+<li>float的属性不为none；</li>
+<li>position为absolute或fixed；</li>
+<li>display为inline-block。table-cell，table-caption，flex；</li>
+<li>overflow不为visible(overflow默认值是visible)</li>
+<li>根元素&lt;html&gt;</li>
+</ul>
+<h1 id="IFC-行内格式化上下文"><a href="#IFC-行内格式化上下文" class="headerlink" title="IFC(行内格式化上下文)"></a>IFC(行内格式化上下文)</h1><h2 id="1-行框"><a href="#1-行框" class="headerlink" title="1.行框"></a>1.行框</h2><p>IFC内联元素对齐完之后形成的四方块儿区域，叫做一个line box(行框)。行框不是内联元素的父元素</p>
+<p>宽度：由包含它的元素的宽度和包含它的元素里面有没有float元素来决定（其实就是父元素的宽）</p>
+<p>高度：由内部元素中实际高度最高的元素而计算出来。</p>
+<h2 id="2-特点"><a href="#2-特点" class="headerlink" title="2.特点"></a>2.特点</h2><ul>
+<li><p>高度计算：由line-height决定(line-height是vertical-align参考的边界值)</p>
+</li>
+<li><p>水平排列，margin，padding，border可以设置，但垂直方向上不算入高度。但无法设置width和height</p>
+</li>
+<li><p>垂直居中：当父元素没有设置高度时，内部所有元素(内联元素)设置verticle-align:middle后，将会居中对齐</p>
+<p>​                    当设置了父元素高度后，内联元素居中对齐，但整体没有在父元素中居中。整体设置line-height=父元素height后(此时IFC高度等于父元素高度)才会在父元素上居中对齐</p>
+<p>​                    (某个内联元素的高&lt;行框高，垂直方向上的位置由verticle-align决定)</p>
+</li>
+<li><p>水平居中：设置父元素为text-align：center；</p>
+<p>(行框的宽&gt;行框中内联元素的宽，水平方向上的位置由text-align决定)</p>
+</li>
+</ul>
+<h2 id="3-产生条件"><a href="#3-产生条件" class="headerlink" title="3.产生条件"></a>3.产生条件</h2><ul>
+<li>font-size</li>
+<li>line-height</li>
+<li>height</li>
+<li>verticle-align</li>
+<li>display：inline-block和line</li>
+</ul>
+<h1 id="清除浮动"><a href="#清除浮动" class="headerlink" title="清除浮动"></a>清除浮动</h1><p>参考地址：<a href="https://www.cnblogs.com/lauzhishuai/p/10953608.html">https://www.cnblogs.com/lauzhishuai/p/10953608.html</a></p>
+<h2 id="1-为什么要清除浮动"><a href="#1-为什么要清除浮动" class="headerlink" title="1.为什么要清除浮动"></a>1.为什么要清除浮动</h2><figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;topDiv&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;floatDiv&quot;</span>&gt;</span>float left<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;textDiv&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;bottomDiv&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="../images/image-20211010222612549.png" alt="image-20211010222612549"></p>
+<p>上图为不清除浮动所造成的问题：</p>
+<ol>
+<li>由于.textDiv两旁存在浮动，蓝色文字围绕浮动元素排列，但我们可能希望文字在下方单独排列。</li>
+<li>浮动元素超出父元素的高度，并没有撑开父元素，若没有.textDiv，则父元素的高度将会为0。</li>
+<li>浮动元素影响了父元素的兄弟元素(黑色文本)的排版。</li>
+</ol>
+<h2 id="2-清除浮动的方法"><a href="#2-清除浮动的方法" class="headerlink" title="2.清除浮动的方法"></a>2.清除浮动的方法</h2><h3 id="2-1-利用clear"><a href="#2-1-利用clear" class="headerlink" title="2.1 利用clear"></a>2.1 利用clear</h3><p>给需要清除浮动的元素添加如下样式：</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.textDiv</span> &#123;</span><br><span class="line">    <span class="attribute">color</span>: blue;</span><br><span class="line">    <span class="attribute">border</span>: <span class="number">2px</span> solid blue;</span><br><span class="line">    <span class="attribute">clear</span>: left;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>缺点：如果产生浮动的元素在文本后面，则此方法不行，就算用了clear:right也不行。</li>
+</ul>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;topDiv&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;textDiv&quot;</span>&gt;</span>..........<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;floatDiv&quot;</span>&gt;</span>float left<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;bottomDiv&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以用如下方法</p>
+<h3 id="2-2-添加空白块级元素"><a href="#2-2-添加空白块级元素" class="headerlink" title="2.2 添加空白块级元素"></a>2.2 添加空白块级元素</h3><p>在父级元素末尾插入一个没有内容的<strong>块级元素</strong>(一定要是块级元素)div，并清除周边浮动</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;topDiv&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;textDiv&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;floatDiv&quot;</span>&gt;</span>float left<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;blankDiv&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;bottomDiv&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.blankDiv</span> &#123;</span><br><span class="line">    <span class="attribute">clear</span>: both;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-3-利用伪元素"><a href="#2-3-利用伪元素" class="headerlink" title="2.3 利用伪元素"></a>2.3 利用伪元素</h3><p>在父元素上添加一个类(如下)，通过伪元素在需要清除浮动的元素的父元素末尾添加一个块来清除浮动。(原理同2.2)</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.clearfix</span>:after &#123;</span><br><span class="line">    content: <span class="string">&#x27;.&#x27;</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">display</span>: block;</span><br><span class="line">    <span class="attribute">clear</span>: both;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-利用BFC"><a href="#2-4-利用BFC" class="headerlink" title="2.4 利用BFC"></a>2.4 利用BFC</h3><p>将需要清除浮动的元素的父元素设置为BFC，BFC的一条特性为：计算BFC的高度时，浮动元素也参与计算。</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-class">.topDiv</span> &#123;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">500px</span>;</span><br><span class="line">    <span class="attribute">padding</span>: <span class="number">4px</span>;</span><br><span class="line">    <span class="attribute">border</span>: <span class="number">2px</span> solid black;</span><br><span class="line"> </span><br><span class="line">    <span class="attribute">overflow</span>: auto; //此时产生BFC</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+]]></content>
       <categories>
-          
-          <category> 前端 </category>
-          
+        <category>前端</category>
       </categories>
-      
-      
-        <tags>
-            
-            <tag> js </tag>
-            
-            <tag> 进阶 </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>定时器的重复问题</title>
-      <link href="/2021/10/17/%E5%AE%9A%E6%97%B6%E5%99%A8%E9%87%8D%E5%A4%8D%E9%97%AE%E9%A2%98/"/>
-      <url>/2021/10/17/%E5%AE%9A%E6%97%B6%E5%99%A8%E9%87%8D%E5%A4%8D%E9%97%AE%E9%A2%98/</url>
-      
-        <content type="html"><![CDATA[<h1 id="定时器的重复问题"><a href="#定时器的重复问题" class="headerlink" title="定时器的重复问题"></a>定时器的重复问题</h1><p>例如，按下键盘右方向键，方块右移</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> box1=<span class="built_in">document</span>.getElementById(<span class="string">&quot;box1&quot;</span>);</span><br><span class="line">            <span class="keyword">var</span> speed=<span class="number">10</span>;</span><br><span class="line">            <span class="keyword">var</span> dir=<span class="number">0</span>;</span><br><span class="line">            <span class="built_in">setInterval</span>(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(dir===<span class="number">39</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    box1.style.left=box1.offsetLeft+speed+<span class="string">&quot;px&quot;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,<span class="number">30</span>)</span><br><span class="line">            <span class="built_in">document</span>.onkeydown=<span class="function"><span class="keyword">function</span>(<span class="params">event</span>)</span>&#123;</span><br><span class="line">                event=event||<span class="built_in">window</span>.event;</span><br><span class="line">                dir=event.keyCode;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">document</span>.onkeyup=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">                dir=<span class="number">0</span>;</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure><p>如果将setInterval放入到document.onkeydown()中，则键盘一直按下时，会触发多个定时器，导致方块移动速度加快。因此，考虑将定时器放到全局中，只触发一次。</p>]]></content>
-      
-      
+      <tags>
+        <tag>html</tag>
+        <tag>基础</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>循环遍历加监听的问题</title>
+    <url>/2021/10/11/%E5%BE%AA%E7%8E%AF%E9%81%8D%E5%8E%86%E5%8A%A0%E7%9B%91%E5%90%AC/</url>
+    <content><![CDATA[<h2 id="1-用var失败的原因"><a href="#1-用var失败的原因" class="headerlink" title="1 用var失败的原因"></a>1 用var失败的原因</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> btns = <span class="built_in">document</span>.getElementsByTagName(<span class="string">&#x27;button&#x27;</span>);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>;i&lt;btns.length;i++)&#123;</span><br><span class="line">            btns[i].onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">                alert(i);</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>点击监听事件是异步执行的，当点击按钮执行相应函数之前，同步任务(循环)已经执行结束，此时在全局作用域下的 i 已经为固定值。执行alert(i)时，沿着作用域链找到全局作用域下的 i ，导致点击每个按钮得到的结果相同。</li>
+</ul>
+<h2 id="2-解决方法"><a href="#2-解决方法" class="headerlink" title="2 解决方法"></a>2 解决方法</h2><h3 id="2-1-添加属性"><a href="#2-1-添加属性" class="headerlink" title="2.1 添加属性"></a>2.1 添加属性</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>;i&lt;btns.length;i++)&#123;</span><br><span class="line">            btns[i].index = i;</span><br><span class="line">            btns[i].onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">                alert(<span class="built_in">this</span>.index);</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>原理：给每一个按钮绑定一个单独的属性，之后在执行点击监听的异步任务时，通过自己的属性来访问该值，不去访问全局作用域下的 i</p>
+<h3 id="2-2-立即执行函数"><a href="#2-2-立即执行函数" class="headerlink" title="2.2 立即执行函数"></a>2.2 立即执行函数</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> btns = <span class="built_in">document</span>.getElementsByTagName(<span class="string">&#x27;button&#x27;</span>);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>;i&lt;btns.length;i++)&#123;</span><br><span class="line">        (<span class="function"><span class="keyword">function</span> (<span class="params">i</span>) </span>&#123;</span><br><span class="line">            btns[i].onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">                alert(i);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)(i)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>原理：将每次执行for循环的 i 当作实参传入函数，在外部function函数中的 i 是局部变量，所以每次添加监听的 i 是不同的。由于闭包的原理，i 会一直存在，在执行点击的异步任务时可以访问到每个作用域下的 i</p>
+<h3 id="2-3-用let替换var"><a href="#2-3-用let替换var" class="headerlink" title="2.3 用let替换var"></a>2.3 用let替换var</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> btns = <span class="built_in">document</span>.getElementsByTagName(<span class="string">&#x27;button&#x27;</span>);</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> i = <span class="number">0</span>;i&lt;btns.length;i++)&#123;</span><br><span class="line">           btns[i].onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">               alert(i);</span><br><span class="line">           &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>原理：let发挥效果在块级作用域，每个for循环下的代码都在相互独立的块级作用域下，在执行点击监听函数时，内部function的 i 顺着作用域链不会找到全局作用域去，而是在块级作用域找到每个独立的 i</p>
+]]></content>
       <categories>
-          
-          <category> 前端 </category>
-          
+        <category>前端</category>
       </categories>
-      
-      
-        <tags>
-            
-            <tag> 基础 </tag>
-            
-            <tag> js </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>变量声明、作用域、执行上下文</title>
-      <link href="/2021/10/16/%E5%8F%98%E9%87%8F%E5%A3%B0%E6%98%8E%E4%B8%8E%E4%BD%9C%E7%94%A8%E5%9F%9F/"/>
-      <url>/2021/10/16/%E5%8F%98%E9%87%8F%E5%A3%B0%E6%98%8E%E4%B8%8E%E4%BD%9C%E7%94%A8%E5%9F%9F/</url>
-      
-        <content type="html"><![CDATA[<h1 id="函数、变量、作用域"><a href="#函数、变量、作用域" class="headerlink" title="函数、变量、作用域"></a>函数、变量、作用域</h1><h2 id="1-var、let、const"><a href="#1-var、let、const" class="headerlink" title="1 var、let、const"></a>1 var、let、const</h2><table><thead><tr><th align="center"></th><th>声明范围</th><th>特点</th></tr></thead><tbody><tr><td align="center">var</td><td>块作用域</td><td><strong>声明提升</strong></td></tr><tr><td align="center">let</td><td>函数作用域</td><td>声明的变量<strong>不允许重复声明</strong>(只是不允许重复声明，但是可以更改)</td></tr><tr><td align="center">const</td><td>函数作用域</td><td>声明时<strong>必须初始化</strong>，且后续不能更改</td></tr></tbody></table><ul><li> 省略var操作符</li></ul><p>在函数内定义变量时，省略var操作符后，可以创建一个全局变量</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  message1 = <span class="string">&#x27;全局变量&#x27;</span></span><br><span class="line">  <span class="keyword">var</span> message2 = <span class="string">&#x27;局部变量&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">test() <span class="comment">// 此时执行函数，创建message1和message2，但执行结束后message2会被销毁</span></span><br><span class="line"><span class="built_in">console</span>.log(message1) <span class="comment">//正确</span></span><br><span class="line"><span class="built_in">console</span>.log(message2) <span class="comment">//报错</span></span><br></pre></td></tr></table></figure><h2 id="2-声明提升"><a href="#2-声明提升" class="headerlink" title="2 声明提升"></a>2 声明提升</h2><h3 id="2-1-变量声明提升"><a href="#2-1-变量声明提升" class="headerlink" title="2.1 变量声明提升"></a>2.1 变量声明提升</h3><p>通过<strong>var声明变量</strong>时，会自动提升到函数作用域顶部</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(age)</span><br><span class="line"><span class="keyword">var</span> age=<span class="number">20</span></span><br><span class="line"><span class="comment">// 运行时等价于</span></span><br><span class="line"><span class="keyword">var</span> age</span><br><span class="line"><span class="built_in">console</span>.log(age) <span class="comment">//undefined</span></span><br><span class="line">age=<span class="number">20</span></span><br></pre></td></tr></table></figure><h3 id="2-2-函数声明提升"><a href="#2-2-函数声明提升" class="headerlink" title="2.2 函数声明提升"></a>2.2 函数声明提升</h3><p>在执行代码时，在函数定义之前就可以调用函数</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">fun()</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fun</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;函数声明提升&#x27;</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 此时函数仍可以正常调用</span></span><br></pre></td></tr></table></figure><ul><li>优先级：先函数提升，再变量提升</li></ul><p>示例一：</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> c=<span class="number">1</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">c</span>(<span class="params">c</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(c)</span><br><span class="line">&#125;</span><br><span class="line">c(<span class="number">2</span>) <span class="comment">//报错</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 等价于</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">c</span>(<span class="params">c</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(c)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> c</span><br><span class="line">c=<span class="number">1</span> </span><br><span class="line">c(<span class="number">2</span>) <span class="comment">//此时的c是一个变量，所有报错</span></span><br></pre></td></tr></table></figure><p>示例二：</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fn1() <span class="comment">//可调用  函数提升</span></span><br><span class="line">fn2() <span class="comment">//不可调用  变量提升</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fn1</span>(<span class="params"></span>)</span>&#123;...&#125;</span><br><span class="line"><span class="keyword">var</span> fn2=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;...&#125;</span><br></pre></td></tr></table></figure><h2 id="3-函数"><a href="#3-函数" class="headerlink" title="3 函数"></a>3 函数</h2><p>可执行的对象</p><h3 id="3-1-回调函数"><a href="#3-1-回调函数" class="headerlink" title="3.1 回调函数"></a>3.1 回调函数</h3><p>自定义的非直接调用但最后执行了的函数</p><h3 id="3-2-立即执行函数"><a href="#3-2-立即执行函数" class="headerlink" title="3.2 立即执行函数"></a>3.2 立即执行函数</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">.....</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure><p>作用：1.隐藏实现：直接执行，外部看不见(给window加属性)</p><p>​            2.不会污染外部(全局)命名空间</p><h2 id="4-作用域、执行上下文"><a href="#4-作用域、执行上下文" class="headerlink" title="4 作用域、执行上下文"></a>4 作用域、执行上下文</h2><h3 id="4-1-全局执行上下文"><a href="#4-1-全局执行上下文" class="headerlink" title="4.1 全局执行上下文"></a>4.1 全局执行上下文</h3><p>执行流程：</p><ol><li><p>在执行全局代码前将window确定为全局执行上下文</p></li><li><p>对全局数据<strong>进行预处理</strong></p><p>(1) var定义的全局变量(只是定义，但未赋值，为undefined),添加为window的属性</p><p>(2) function声明的全局函数，添加为window的方法</p><p>(3) this赋值为window</p></li></ol><h3 id="4-2-函数执行上下文"><a href="#4-2-函数执行上下文" class="headerlink" title="4.2 函数执行上下文"></a>4.2 函数执行上下文</h3><p>执行流程：</p><ol><li><p>调用函数，准备执行函数体之前，创建对应的函数执行上下文对象</p></li><li><p>对局部数据<strong>进行预处理</strong></p><p>(1) 形参变量，添加为执行上下文的属性</p><p>(2) arguments，添加为执行上下文的属性</p><p>(3) var定义为局部变量(只是定义，但未赋值)，添加为执行上下文的属性</p><p>(4) function声明的全局函数，添加为window的方法</p><p>(5) this</p></li><li><p>执行函数体代码</p></li></ol><h3 id="4-3-作用域与执行上下文的区别"><a href="#4-3-作用域与执行上下文的区别" class="headerlink" title="4.3 作用域与执行上下文的区别"></a>4.3 作用域与执行上下文的区别</h3><p>区别：</p><p>​    1.作用域在函数定义时就确定了，而不是调用时</p><pre><code>   执行上下文是在函数调用时创建</code></pre><p>​    2.作用域为静态，定义后就一直存在，不会变动</p><p>​        执行上下文是调用时创建，函数执行结束就释放</p>]]></content>
-      
-      
+      <tags>
+        <tag>基础</tag>
+        <tag>js</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>闭包</title>
+    <url>/2021/10/13/%E9%97%AD%E5%8C%85/</url>
+    <content><![CDATA[<h1 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h1><h2 id="1-什么时闭包"><a href="#1-什么时闭包" class="headerlink" title="1. 什么时闭包"></a>1. 什么时闭包</h2><p>闭包就是将函数内部和函数外部连接起来的一座桥梁。<strong>闭包就是能够读取其他函数内部变量的函数</strong></p>
+<h2 id="2-闭包的产生与死亡"><a href="#2-闭包的产生与死亡" class="headerlink" title="2. 闭包的产生与死亡"></a>2. 闭包的产生与死亡</h2><ul>
+<li>产生：当一个嵌套的内部(子)函数引用了外部(父)函数的变量(函数)时，产生闭包</li>
+<li>死亡：内部函数成为垃圾对象时</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fn1</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> a=<span class="number">2</span> <span class="comment">//内部函数不需要调用，闭包此时产生</span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">fn2</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        a++ </span><br><span class="line">        <span class="built_in">console</span>.log(a)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> fn2</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> f=fn1() <span class="comment">//此时f一直指向fn2，闭包一直存在</span></span><br><span class="line">f() <span class="comment">//输出3</span></span><br><span class="line">f() <span class="comment">//输出4</span></span><br><span class="line">f=<span class="literal">null</span> <span class="comment">//fn2成为垃圾对象，闭包消失</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-作用"><a href="#3-作用" class="headerlink" title="3. 作用"></a>3. 作用</h2><ol>
+<li>使用函数内部的变量在函数执行完成后，仍然存活在内存中。(延长了局部变量的生命周期)</li>
+<li>让函数外部可以操作和读写函数内部的变量和函数。</li>
+</ol>
+<h2 id="4-缺点"><a href="#4-缺点" class="headerlink" title="4. 缺点"></a>4. 缺点</h2><ul>
+<li>函数执行完成后，内部的局部变量没有被释放，占用内存，同时占用时间变长。(可以通过fn=null，将fn2变为垃圾对象)</li>
+</ul>
+]]></content>
       <categories>
-          
-          <category> 前端 </category>
-          
+        <category>前端</category>
       </categories>
-      
-      
-        <tags>
-            
-            <tag> 基础 </tag>
-            
-            <tag> js </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>数据类型、转换、运算</title>
-      <link href="/2021/10/15/%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E8%BD%AC%E6%8D%A2/"/>
-      <url>/2021/10/15/%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E8%BD%AC%E6%8D%A2/</url>
-      
-        <content type="html"><![CDATA[<h1 id="数据类型、转换、运算"><a href="#数据类型、转换、运算" class="headerlink" title="数据类型、转换、运算"></a>数据类型、转换、运算</h1><h2 id="1-数据类型与存储"><a href="#1-数据类型与存储" class="headerlink" title="1 数据类型与存储"></a>1 数据类型与存储</h2><h3 id="1-1-数据类型"><a href="#1-1-数据类型" class="headerlink" title="1.1 数据类型"></a>1.1 数据类型</h3><ol><li><p>基本数据类型</p><ul><li>string</li><li>number</li><li>boolean</li><li>null：定义并赋值，但值未null</li><li>undefine：定义了但未赋值</li></ul></li><li><p>引用数据类型</p><ul><li>object</li></ul><!--NaN表示非数字（但是typeof NaN返回number） NaN不与任何值相等，包括自己，可用isNaN()检查一个值是否为NaN--></li></ol><h3 id="1-2-存储方式"><a href="#1-2-存储方式" class="headerlink" title="1.2 存储方式"></a>1.2 存储方式</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a=xxx</span><br></pre></td></tr></table></figure><ul><li>当xxx为基本数据类型，a保存的就是xxx</li><li>当xxx为引用数据类型(对象)，a保存的是地址值</li><li>当xxx为变量，看变量是基本数据类型还是对象<ul><li><strong>当变量保存的是基本数据类型，则拷贝一份数据存到a</strong></li><li><strong>当变量保存的是引用数据类型，则a与xxx保存相同地址值，并指向同一内存空间</strong></li></ul></li></ul><h2 id="2-数据类型转换"><a href="#2-数据类型转换" class="headerlink" title="2 数据类型转换"></a>2 数据类型转换</h2><h3 id="2-1-typeof"><a href="#2-1-typeof" class="headerlink" title="2.1 typeof"></a>2.1 typeof</h3><ol><li>检查数据的类型并通过<strong>字符串的形式</strong>返回</li><li>若检查值为null，返回值为object</li><li>若检查的数字值大于上限，返回infinity</li><li>若检测值为NaN，返回number</li><li>若检测值未声明或者声明了未初始化，返回都是undefined</li></ol><h3 id="2-2-数据转换"><a href="#2-2-数据转换" class="headerlink" title="2.2 数据转换"></a>2.2 数据转换</h3><table><thead><tr><th align="center"></th><th align="center">string</th><th align="center">number</th><th align="center">boolean</th><th align="center">null</th><th align="center">undefined</th><th align="center">object</th></tr></thead><tbody><tr><td align="center">.toString()</td><td align="center">-</td><td align="center">string</td><td align="center">string</td><td align="center">报错</td><td align="center">报错</td><td align="center">string</td></tr><tr><td align="center">String()</td><td align="center">-</td><td align="center">string</td><td align="center">string</td><td align="center">‘null’</td><td align="center">‘undefined’</td><td align="center">string</td></tr><tr><td align="center">Number()</td><td align="center"><strong>NaN(字符串中为非数字时)</strong></td><td align="center">-</td><td align="center">1或0</td><td align="center">0</td><td align="center">NaN</td><td align="center">NaN</td></tr><tr><td align="center">parseInt</td><td align="center">有效整数/NaN</td><td align="center">有效整数</td><td align="center">NaN</td><td align="center">NaN</td><td align="center">NaN</td><td align="center">NaN</td></tr><tr><td align="center">parseFloat</td><td align="center">有效小数/NaN</td><td align="center">有效小数</td><td align="center">NaN</td><td align="center">NaN</td><td align="center">NaN</td><td align="center">NaN</td></tr><tr><td align="center">Boolean()</td><td align="center"><strong>true(除了空串)</strong></td><td align="center"><strong>true(除0和NaN)</strong></td><td align="center">-</td><td align="center">false</td><td align="center">false</td><td align="center">true</td></tr></tbody></table><h2 id="3-数据类型的运算"><a href="#3-数据类型的运算" class="headerlink" title="3 数据类型的运算"></a>3 数据类型的运算</h2><h3 id="3-1-与字符串相加"><a href="#3-1-与字符串相加" class="headerlink" title="3.1 与字符串相加"></a>3.1 与字符串相加</h3><ul><li>任何值与字符串相加<strong>先要转换为字符串</strong>再加</li></ul><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> val=<span class="number">555</span></span><br><span class="line"><span class="built_in">console</span>.log(val+<span class="string">&#x27;字符串&#x27;</span>)</span><br><span class="line"><span class="comment">// 最终显示：555字符串</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 注意：一元操作符++、--与+、-的计算法则不同</span></span><br><span class="line"><span class="keyword">var</span> str=<span class="string">&#x27;a&#x27;</span></span><br><span class="line">str++;</span><br><span class="line"><span class="built_in">console</span>.log(str)</span><br><span class="line"><span class="comment">// 最终显示NaN，详细查看4.3</span></span><br></pre></td></tr></table></figure><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> val=<span class="number">555</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">&#x27;字符串&#x27;</span>+val)</span><br></pre></td></tr></table></figure><p>最终显示：字符串555</p><h3 id="3-2-隐式转换"><a href="#3-2-隐式转换" class="headerlink" title="3.2 隐式转换"></a>3.2 隐式转换</h3><ol><li><p>可通过+’’的方式将值转换为string</p><p>12 + ‘’ = ‘12’</p></li><li><p>可通过-0等作number的隐式转换</p></li></ol><h2 id="4-运算"><a href="#4-运算" class="headerlink" title="4 运算"></a>4 运算</h2><h3 id="4-1-与运算、或运算-逻辑运算"><a href="#4-1-与运算、或运算-逻辑运算" class="headerlink" title="4.1 与运算、或运算(逻辑运算)"></a>4.1 与运算、或运算(逻辑运算)</h3><ul><li><p>与运算：表达式1&amp;&amp;表达式2</p><p>若表达式1的值为true，则<strong>返回第二个值</strong></p><p>若表达式1的值为false，则<strong>返回第一个值</strong></p></li><li><p>或运算：表达式1||表达式2</p><p>若表达式1的值为true，则<strong>返回第一个值</strong></p><p>若表达式1的值为false，则<strong>返回第二个值</strong></p></li></ul><h3 id="4-2-关系运算"><a href="#4-2-关系运算" class="headerlink" title="4.2 关系运算"></a>4.2 关系运算</h3><ul><li><p>任何值与NaN比较返回值都是false</p></li><li><p>若<strong>单侧</strong>为字符串型数字(如’1’、’123’)，比较时会转换为number型在比较</p></li><li><p>若两侧均为字符串，则不会转换，直接比较unicode编码</p></li><li><p>全等运算符：===</p><p>运算时不会做类型转换，类型不同就会返回false</p><p>null==undefined返回true</p><p>null===undefined返回false</p></li></ul><h3 id="4-3-一元运算符-、–"><a href="#4-3-一元运算符-、–" class="headerlink" title="4.3 一元运算符++、–"></a>4.3 一元运算符++、–</h3><ul><li>当参与运算的变量为String类型时</li></ul><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> str1=<span class="string">&#x27;a&#x27;</span> <span class="comment">//字符为非数字</span></span><br><span class="line">str++;</span><br><span class="line"><span class="built_in">console</span>.log(str1) <span class="comment">//NaN</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> str1=<span class="string">&#x27;1&#x27;</span> <span class="comment">//字符为数字</span></span><br><span class="line">str++;</span><br><span class="line"><span class="built_in">console</span>.log(str1) <span class="comment">//2</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> str2=<span class="string">&#x27;a&#x27;</span></span><br><span class="line">str2+=<span class="number">1</span>;</span><br><span class="line"><span class="built_in">console</span>.log(str2) <span class="comment">//a1</span></span><br></pre></td></tr></table></figure>]]></content>
-      
-      
+      <tags>
+        <tag>js</tag>
+        <tag>进阶</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>获取异步操作的数据</title>
+    <url>/2021/10/14/%E5%A4%96%E9%83%A8%E8%AF%BB%E5%8F%96%E5%BC%82%E6%AD%A5%E6%96%B9%E6%B3%95%E7%9A%84%E6%95%B0%E6%8D%AE/</url>
+    <content><![CDATA[<h1 id="获取异步操作的数据"><a href="#获取异步操作的数据" class="headerlink" title="获取异步操作的数据"></a>获取异步操作的数据</h1><h2 id="1-错误方法"><a href="#1-错误方法" class="headerlink" title="1. 错误方法"></a>1. 错误方法</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getData</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">var</span> name=<span class="string">&#x27;yzy&#x27;</span>;</span><br><span class="line">        <span class="keyword">return</span> name <span class="comment">//  位置1</span></span><br><span class="line">    &#125;,<span class="number">1000</span>)</span><br><span class="line">    <span class="keyword">return</span> name  <span class="comment">//  位置2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(getData())</span><br></pre></td></tr></table></figure>
+
+<p><strong>当执行函数getData时，setTimeout为异步任务，此时函数中无法立即执行setTimeout函数</strong></p>
+<ul>
+<li>如果在位置1返回，此时函数体内部没有任何语句，最后将在控制台输出undefined</li>
+<li>如果在位置2返回，此时函数体内部只有return name，由于name没有定义，最后将会报错</li>
+</ul>
+<h2 id="2-解决方法"><a href="#2-解决方法" class="headerlink" title="2. 解决方法"></a>2. 解决方法</h2><h3 id="2-1-用回调函数"><a href="#2-1-用回调函数" class="headerlink" title="2.1 用回调函数"></a>2.1 用回调函数</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getData</span>(<span class="params">callback</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">var</span> name=<span class="string">&#x27;yzy&#x27;</span>;</span><br><span class="line">        callback(name)</span><br><span class="line">    &#125;,<span class="number">1000</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">getData(<span class="function"><span class="keyword">function</span>(<span class="params">aaa</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(aaa) <span class="comment">//1s后输出yzy</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-用Promise-then的方法"><a href="#2-2-用Promise-then的方法" class="headerlink" title="2.2 用Promise.then的方法"></a>2.2 用Promise.then的方法</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getData</span>(<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> name = <span class="string">&#x27;yzy&#x27;</span></span><br><span class="line">    resolve(name)</span><br><span class="line">  &#125;, <span class="number">1000</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> p = <span class="keyword">new</span> <span class="built_in">Promise</span>(getData)</span><br><span class="line"></span><br><span class="line">p.then(<span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(data)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="获取异步操作的数据-1"><a href="#获取异步操作的数据-1" class="headerlink" title="获取异步操作的数据"></a>获取异步操作的数据</h1><h2 id="1-错误方法-1"><a href="#1-错误方法-1" class="headerlink" title="1. 错误方法"></a>1. 错误方法</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getData</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">var</span> name=<span class="string">&#x27;yzy&#x27;</span>;</span><br><span class="line">        <span class="keyword">return</span> name <span class="comment">//  位置1</span></span><br><span class="line">    &#125;,<span class="number">1000</span>)</span><br><span class="line">    <span class="keyword">return</span> name  <span class="comment">//  位置2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(getData())</span><br></pre></td></tr></table></figure>
+
+<p><strong>当执行函数getData时，setTimeout为异步任务，此时函数中无法立即执行setTimeout函数</strong></p>
+<ul>
+<li>如果在位置1返回，此时函数体内部没有任何语句，最后将在控制台输出undefined</li>
+<li>如果在位置2返回，此时函数体内部只有return name，由于name没有定义，最后将会报错</li>
+</ul>
+<h2 id="2-解决方法-1"><a href="#2-解决方法-1" class="headerlink" title="2. 解决方法"></a>2. 解决方法</h2><h3 id="2-1-用回调函数-1"><a href="#2-1-用回调函数-1" class="headerlink" title="2.1 用回调函数"></a>2.1 用回调函数</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getData</span>(<span class="params">callback</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">var</span> name=<span class="string">&#x27;yzy&#x27;</span>;</span><br><span class="line">        callback(name)</span><br><span class="line">    &#125;,<span class="number">1000</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">getData(<span class="function"><span class="keyword">function</span>(<span class="params">aaa</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(aaa) <span class="comment">//1s后输出yzy</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-用Promise-then的方法-1"><a href="#2-2-用Promise-then的方法-1" class="headerlink" title="2.2 用Promise.then的方法"></a>2.2 用Promise.then的方法</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getData</span>(<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> name = <span class="string">&#x27;yzy&#x27;</span></span><br><span class="line">    resolve(name)</span><br><span class="line">  &#125;, <span class="number">1000</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> p = <span class="keyword">new</span> <span class="built_in">Promise</span>(getData)</span><br><span class="line"></span><br><span class="line">p.then(<span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(data)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>原理：将任务包装为一个异步微任务，不会阻碍其他任务的执行</p>
+<h3 id="2-3-用async、await方法"><a href="#2-3-用async、await方法" class="headerlink" title="2.3 用async、await方法"></a>2.3 用async、await方法</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">var</span> name = <span class="string">&#x27;yzy&#x27;</span></span><br><span class="line">      resolve(name)</span><br><span class="line">    &#125;, <span class="number">1000</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">main</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> data = <span class="keyword">await</span> test()</span><br><span class="line">  <span class="built_in">console</span>.log(data) <span class="comment">//返回值为 &#x27;aaaa&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">main()</span><br></pre></td></tr></table></figure>
+
+]]></content>
       <categories>
-          
-          <category> 前端 </category>
-          
+        <category>前端</category>
       </categories>
-      
-      
-        <tags>
-            
-            <tag> 基础 </tag>
-            
-            <tag> js </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>获取异步操作的数据</title>
-      <link href="/2021/10/14/%E5%A4%96%E9%83%A8%E8%AF%BB%E5%8F%96%E5%BC%82%E6%AD%A5%E6%96%B9%E6%B3%95%E7%9A%84%E6%95%B0%E6%8D%AE/"/>
-      <url>/2021/10/14/%E5%A4%96%E9%83%A8%E8%AF%BB%E5%8F%96%E5%BC%82%E6%AD%A5%E6%96%B9%E6%B3%95%E7%9A%84%E6%95%B0%E6%8D%AE/</url>
-      
-        <content type="html"><![CDATA[<h1 id="获取异步操作的数据"><a href="#获取异步操作的数据" class="headerlink" title="获取异步操作的数据"></a>获取异步操作的数据</h1><h2 id="1-错误方法"><a href="#1-错误方法" class="headerlink" title="1. 错误方法"></a>1. 错误方法</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getData</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">var</span> name=<span class="string">&#x27;yzy&#x27;</span>;</span><br><span class="line">        <span class="keyword">return</span> name <span class="comment">//  位置1</span></span><br><span class="line">    &#125;,<span class="number">1000</span>)</span><br><span class="line">    <span class="keyword">return</span> name  <span class="comment">//  位置2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(getData())</span><br></pre></td></tr></table></figure><p><strong>当执行函数getData时，setTimeout为异步任务，此时函数中无法立即执行setTimeout函数</strong></p><ul><li>如果在位置1返回，此时函数体内部没有任何语句，最后将在控制台输出undefined</li><li>如果在位置2返回，此时函数体内部只有return name，由于name没有定义，最后将会报错</li></ul><h2 id="2-解决方法"><a href="#2-解决方法" class="headerlink" title="2. 解决方法"></a>2. 解决方法</h2><h3 id="2-1-用回调函数"><a href="#2-1-用回调函数" class="headerlink" title="2.1 用回调函数"></a>2.1 用回调函数</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getData</span>(<span class="params">callback</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">var</span> name=<span class="string">&#x27;yzy&#x27;</span>;</span><br><span class="line">        callback(name)</span><br><span class="line">    &#125;,<span class="number">1000</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">getData(<span class="function"><span class="keyword">function</span>(<span class="params">aaa</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(aaa) <span class="comment">//1s后输出yzy</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure><h3 id="2-2-用Promise-then的方法"><a href="#2-2-用Promise-then的方法" class="headerlink" title="2.2 用Promise.then的方法"></a>2.2 用Promise.then的方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getData</span>(<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> name = <span class="string">&#x27;yzy&#x27;</span></span><br><span class="line">    resolve(name)</span><br><span class="line">  &#125;, <span class="number">1000</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> p = <span class="keyword">new</span> <span class="built_in">Promise</span>(getData)</span><br><span class="line"></span><br><span class="line">p.then(<span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(data)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure><h1 id="获取异步操作的数据-1"><a href="#获取异步操作的数据-1" class="headerlink" title="获取异步操作的数据"></a>获取异步操作的数据</h1><h2 id="1-错误方法-1"><a href="#1-错误方法-1" class="headerlink" title="1. 错误方法"></a>1. 错误方法</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getData</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">var</span> name=<span class="string">&#x27;yzy&#x27;</span>;</span><br><span class="line">        <span class="keyword">return</span> name <span class="comment">//  位置1</span></span><br><span class="line">    &#125;,<span class="number">1000</span>)</span><br><span class="line">    <span class="keyword">return</span> name  <span class="comment">//  位置2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(getData())</span><br></pre></td></tr></table></figure><p><strong>当执行函数getData时，setTimeout为异步任务，此时函数中无法立即执行setTimeout函数</strong></p><ul><li>如果在位置1返回，此时函数体内部没有任何语句，最后将在控制台输出undefined</li><li>如果在位置2返回，此时函数体内部只有return name，由于name没有定义，最后将会报错</li></ul><h2 id="2-解决方法-1"><a href="#2-解决方法-1" class="headerlink" title="2. 解决方法"></a>2. 解决方法</h2><h3 id="2-1-用回调函数-1"><a href="#2-1-用回调函数-1" class="headerlink" title="2.1 用回调函数"></a>2.1 用回调函数</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getData</span>(<span class="params">callback</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">var</span> name=<span class="string">&#x27;yzy&#x27;</span>;</span><br><span class="line">        callback(name)</span><br><span class="line">    &#125;,<span class="number">1000</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">getData(<span class="function"><span class="keyword">function</span>(<span class="params">aaa</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(aaa) <span class="comment">//1s后输出yzy</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure><h3 id="2-2-用Promise-then的方法-1"><a href="#2-2-用Promise-then的方法-1" class="headerlink" title="2.2 用Promise.then的方法"></a>2.2 用Promise.then的方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getData</span>(<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">setTimeout</span>(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> name = <span class="string">&#x27;yzy&#x27;</span></span><br><span class="line">    resolve(name)</span><br><span class="line">  &#125;, <span class="number">1000</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> p = <span class="keyword">new</span> <span class="built_in">Promise</span>(getData)</span><br><span class="line"></span><br><span class="line">p.then(<span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(data)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure><p>原理：将任务包装为一个异步微任务，不会阻碍其他任务的执行</p><h3 id="2-3-用async、await方法"><a href="#2-3-用async、await方法" class="headerlink" title="2.3 用async、await方法"></a>2.3 用async、await方法</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">var</span> name = <span class="string">&#x27;yzy&#x27;</span></span><br><span class="line">      resolve(name)</span><br><span class="line">    &#125;, <span class="number">1000</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">main</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> data = <span class="keyword">await</span> test()</span><br><span class="line">  <span class="built_in">console</span>.log(data) <span class="comment">//返回值为 &#x27;aaaa&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">main()</span><br></pre></td></tr></table></figure>]]></content>
-      
-      
+      <tags>
+        <tag>js</tag>
+        <tag>进阶</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>数据类型、转换、运算</title>
+    <url>/2021/10/15/%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E8%BD%AC%E6%8D%A2/</url>
+    <content><![CDATA[<h1 id="数据类型、转换、运算"><a href="#数据类型、转换、运算" class="headerlink" title="数据类型、转换、运算"></a>数据类型、转换、运算</h1><h2 id="1-数据类型与存储"><a href="#1-数据类型与存储" class="headerlink" title="1 数据类型与存储"></a>1 数据类型与存储</h2><h3 id="1-1-数据类型"><a href="#1-1-数据类型" class="headerlink" title="1.1 数据类型"></a>1.1 数据类型</h3><ol>
+<li><p>基本数据类型</p>
+<ul>
+<li>string</li>
+<li>number</li>
+<li>boolean</li>
+<li>null：定义并赋值，但值未null</li>
+<li>undefine：定义了但未赋值</li>
+</ul>
+</li>
+<li><p>引用数据类型</p>
+<ul>
+<li>object</li>
+</ul>
+<!--NaN表示非数字（但是typeof NaN返回number） NaN不与任何值相等，包括自己，可用isNaN()检查一个值是否为NaN--></li>
+</ol>
+<h3 id="1-2-存储方式"><a href="#1-2-存储方式" class="headerlink" title="1.2 存储方式"></a>1.2 存储方式</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> a=xxx</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>当xxx为基本数据类型，a保存的就是xxx</li>
+<li>当xxx为引用数据类型(对象)，a保存的是地址值</li>
+<li>当xxx为变量，看变量是基本数据类型还是对象<ul>
+<li><strong>当变量保存的是基本数据类型，则拷贝一份数据存到a</strong></li>
+<li><strong>当变量保存的是引用数据类型，则a与xxx保存相同地址值，并指向同一内存空间</strong></li>
+</ul>
+</li>
+</ul>
+<h2 id="2-数据类型转换"><a href="#2-数据类型转换" class="headerlink" title="2 数据类型转换"></a>2 数据类型转换</h2><h3 id="2-1-typeof"><a href="#2-1-typeof" class="headerlink" title="2.1 typeof"></a>2.1 typeof</h3><ol>
+<li>检查数据的类型并通过<strong>字符串的形式</strong>返回</li>
+<li>若检查值为null，返回值为object</li>
+<li>若检查的数字值大于上限，返回infinity</li>
+<li>若检测值为NaN，返回number</li>
+<li>若检测值未声明或者声明了未初始化，返回都是undefined</li>
+</ol>
+<h3 id="2-2-数据转换"><a href="#2-2-数据转换" class="headerlink" title="2.2 数据转换"></a>2.2 数据转换</h3><table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="center">string</th>
+<th align="center">number</th>
+<th align="center">boolean</th>
+<th align="center">null</th>
+<th align="center">undefined</th>
+<th align="center">object</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">.toString()</td>
+<td align="center">-</td>
+<td align="center">string</td>
+<td align="center">string</td>
+<td align="center">报错</td>
+<td align="center">报错</td>
+<td align="center">string</td>
+</tr>
+<tr>
+<td align="center">String()</td>
+<td align="center">-</td>
+<td align="center">string</td>
+<td align="center">string</td>
+<td align="center">‘null’</td>
+<td align="center">‘undefined’</td>
+<td align="center">string</td>
+</tr>
+<tr>
+<td align="center">Number()</td>
+<td align="center"><strong>NaN(字符串中为非数字时)</strong></td>
+<td align="center">-</td>
+<td align="center">1或0</td>
+<td align="center">0</td>
+<td align="center">NaN</td>
+<td align="center">NaN</td>
+</tr>
+<tr>
+<td align="center">parseInt</td>
+<td align="center">有效整数/NaN</td>
+<td align="center">有效整数</td>
+<td align="center">NaN</td>
+<td align="center">NaN</td>
+<td align="center">NaN</td>
+<td align="center">NaN</td>
+</tr>
+<tr>
+<td align="center">parseFloat</td>
+<td align="center">有效小数/NaN</td>
+<td align="center">有效小数</td>
+<td align="center">NaN</td>
+<td align="center">NaN</td>
+<td align="center">NaN</td>
+<td align="center">NaN</td>
+</tr>
+<tr>
+<td align="center">Boolean()</td>
+<td align="center"><strong>true(除了空串)</strong></td>
+<td align="center"><strong>true(除0和NaN)</strong></td>
+<td align="center">-</td>
+<td align="center">false</td>
+<td align="center">false</td>
+<td align="center">true</td>
+</tr>
+</tbody></table>
+<h2 id="3-数据类型的运算"><a href="#3-数据类型的运算" class="headerlink" title="3 数据类型的运算"></a>3 数据类型的运算</h2><h3 id="3-1-与字符串相加"><a href="#3-1-与字符串相加" class="headerlink" title="3.1 与字符串相加"></a>3.1 与字符串相加</h3><ul>
+<li>任何值与字符串相加<strong>先要转换为字符串</strong>再加</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> val=<span class="number">555</span></span><br><span class="line"><span class="built_in">console</span>.log(val+<span class="string">&#x27;字符串&#x27;</span>)</span><br><span class="line"><span class="comment">// 最终显示：555字符串</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 注意：一元操作符++、--与+、-的计算法则不同</span></span><br><span class="line"><span class="keyword">var</span> str=<span class="string">&#x27;a&#x27;</span></span><br><span class="line">str++;</span><br><span class="line"><span class="built_in">console</span>.log(str)</span><br><span class="line"><span class="comment">// 最终显示NaN，详细查看4.3</span></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> val=<span class="number">555</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">&#x27;字符串&#x27;</span>+val)</span><br></pre></td></tr></table></figure>
+
+<p>最终显示：字符串555</p>
+<h3 id="3-2-隐式转换"><a href="#3-2-隐式转换" class="headerlink" title="3.2 隐式转换"></a>3.2 隐式转换</h3><ol>
+<li><p>可通过+’’的方式将值转换为string</p>
+<p>12 + ‘’ = ‘12’</p>
+</li>
+<li><p>可通过-0等作number的隐式转换</p>
+</li>
+</ol>
+<h2 id="4-运算"><a href="#4-运算" class="headerlink" title="4 运算"></a>4 运算</h2><h3 id="4-1-与运算、或运算-逻辑运算"><a href="#4-1-与运算、或运算-逻辑运算" class="headerlink" title="4.1 与运算、或运算(逻辑运算)"></a>4.1 与运算、或运算(逻辑运算)</h3><ul>
+<li><p>与运算：表达式1&amp;&amp;表达式2</p>
+<p>若表达式1的值为true，则<strong>返回第二个值</strong></p>
+<p>若表达式1的值为false，则<strong>返回第一个值</strong></p>
+</li>
+<li><p>或运算：表达式1||表达式2</p>
+<p>若表达式1的值为true，则<strong>返回第一个值</strong></p>
+<p>若表达式1的值为false，则<strong>返回第二个值</strong></p>
+</li>
+</ul>
+<h3 id="4-2-关系运算"><a href="#4-2-关系运算" class="headerlink" title="4.2 关系运算"></a>4.2 关系运算</h3><ul>
+<li><p>任何值与NaN比较返回值都是false</p>
+</li>
+<li><p>若<strong>单侧</strong>为字符串型数字(如’1’、’123’)，比较时会转换为number型在比较</p>
+</li>
+<li><p>若两侧均为字符串，则不会转换，直接比较unicode编码</p>
+</li>
+<li><p>全等运算符：===</p>
+<p>运算时不会做类型转换，类型不同就会返回false</p>
+<p>null==undefined返回true</p>
+<p>null===undefined返回false</p>
+</li>
+</ul>
+<h3 id="4-3-一元运算符-、–"><a href="#4-3-一元运算符-、–" class="headerlink" title="4.3 一元运算符++、–"></a>4.3 一元运算符++、–</h3><ul>
+<li>当参与运算的变量为String类型时</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> str1=<span class="string">&#x27;a&#x27;</span> <span class="comment">//字符为非数字</span></span><br><span class="line">str++;</span><br><span class="line"><span class="built_in">console</span>.log(str1) <span class="comment">//NaN</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> str1=<span class="string">&#x27;1&#x27;</span> <span class="comment">//字符为数字</span></span><br><span class="line">str++;</span><br><span class="line"><span class="built_in">console</span>.log(str1) <span class="comment">//2</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> str2=<span class="string">&#x27;a&#x27;</span></span><br><span class="line">str2+=<span class="number">1</span>;</span><br><span class="line"><span class="built_in">console</span>.log(str2) <span class="comment">//a1</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
       <categories>
-          
-          <category> 前端 </category>
-          
+        <category>前端</category>
       </categories>
-      
-      
-        <tags>
-            
-            <tag> js </tag>
-            
-            <tag> 进阶 </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>闭包</title>
-      <link href="/2021/10/13/%E9%97%AD%E5%8C%85/"/>
-      <url>/2021/10/13/%E9%97%AD%E5%8C%85/</url>
-      
-        <content type="html"><![CDATA[<h1 id="闭包"><a href="#闭包" class="headerlink" title="闭包"></a>闭包</h1><h2 id="1-什么时闭包"><a href="#1-什么时闭包" class="headerlink" title="1. 什么时闭包"></a>1. 什么时闭包</h2><p>闭包就是将函数内部和函数外部连接起来的一座桥梁。<strong>闭包就是能够读取其他函数内部变量的函数</strong></p><h2 id="2-闭包的产生与死亡"><a href="#2-闭包的产生与死亡" class="headerlink" title="2. 闭包的产生与死亡"></a>2. 闭包的产生与死亡</h2><ul><li>产生：当一个嵌套的内部(子)函数引用了外部(父)函数的变量(函数)时，产生闭包</li><li>死亡：内部函数成为垃圾对象时</li></ul><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fn1</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> a=<span class="number">2</span> <span class="comment">//内部函数不需要调用，闭包此时产生</span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">fn2</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        a++ </span><br><span class="line">        <span class="built_in">console</span>.log(a)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> fn2</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> f=fn1() <span class="comment">//此时f一直指向fn2，闭包一直存在</span></span><br><span class="line">f() <span class="comment">//输出3</span></span><br><span class="line">f() <span class="comment">//输出4</span></span><br><span class="line">f=<span class="literal">null</span> <span class="comment">//fn2成为垃圾对象，闭包消失</span></span><br></pre></td></tr></table></figure><h2 id="3-作用"><a href="#3-作用" class="headerlink" title="3. 作用"></a>3. 作用</h2><ol><li>使用函数内部的变量在函数执行完成后，仍然存活在内存中。(延长了局部变量的生命周期)</li><li>让函数外部可以操作和读写函数内部的变量和函数。</li></ol><h2 id="4-缺点"><a href="#4-缺点" class="headerlink" title="4. 缺点"></a>4. 缺点</h2><ul><li>函数执行完成后，内部的局部变量没有被释放，占用内存，同时占用时间变长。(可以通过fn=null，将fn2变为垃圾对象)</li></ul>]]></content>
-      
-      
+      <tags>
+        <tag>基础</tag>
+        <tag>js</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>变量声明、作用域、执行上下文</title>
+    <url>/2021/10/16/%E5%8F%98%E9%87%8F%E5%A3%B0%E6%98%8E%E4%B8%8E%E4%BD%9C%E7%94%A8%E5%9F%9F/</url>
+    <content><![CDATA[<h1 id="函数、变量、作用域"><a href="#函数、变量、作用域" class="headerlink" title="函数、变量、作用域"></a>函数、变量、作用域</h1><h2 id="1-var、let、const"><a href="#1-var、let、const" class="headerlink" title="1 var、let、const"></a>1 var、let、const</h2><table>
+<thead>
+<tr>
+<th align="center"></th>
+<th>声明范围</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">var</td>
+<td>块作用域</td>
+<td><strong>声明提升</strong></td>
+</tr>
+<tr>
+<td align="center">let</td>
+<td>函数作用域</td>
+<td>声明的变量<strong>不允许重复声明</strong>(只是不允许重复声明，但是可以更改)</td>
+</tr>
+<tr>
+<td align="center">const</td>
+<td>函数作用域</td>
+<td>声明时<strong>必须初始化</strong>，且后续不能更改</td>
+</tr>
+</tbody></table>
+<ul>
+<li> 省略var操作符</li>
+</ul>
+<p>在函数内定义变量时，省略var操作符后，可以创建一个全局变量</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  message1 = <span class="string">&#x27;全局变量&#x27;</span></span><br><span class="line">  <span class="keyword">var</span> message2 = <span class="string">&#x27;局部变量&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line">test() <span class="comment">// 此时执行函数，创建message1和message2，但执行结束后message2会被销毁</span></span><br><span class="line"><span class="built_in">console</span>.log(message1) <span class="comment">//正确</span></span><br><span class="line"><span class="built_in">console</span>.log(message2) <span class="comment">//报错</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="2-声明提升"><a href="#2-声明提升" class="headerlink" title="2 声明提升"></a>2 声明提升</h2><h3 id="2-1-变量声明提升"><a href="#2-1-变量声明提升" class="headerlink" title="2.1 变量声明提升"></a>2.1 变量声明提升</h3><p>通过<strong>var声明变量</strong>时，会自动提升到函数作用域顶部</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(age)</span><br><span class="line"><span class="keyword">var</span> age=<span class="number">20</span></span><br><span class="line"><span class="comment">// 运行时等价于</span></span><br><span class="line"><span class="keyword">var</span> age</span><br><span class="line"><span class="built_in">console</span>.log(age) <span class="comment">//undefined</span></span><br><span class="line">age=<span class="number">20</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-函数声明提升"><a href="#2-2-函数声明提升" class="headerlink" title="2.2 函数声明提升"></a>2.2 函数声明提升</h3><p>在执行代码时，在函数定义之前就可以调用函数</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">fun()</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fun</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">&#x27;函数声明提升&#x27;</span>)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 此时函数仍可以正常调用</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>优先级：先函数提升，再变量提升</li>
+</ul>
+<p>示例一：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> c=<span class="number">1</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">c</span>(<span class="params">c</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(c)</span><br><span class="line">&#125;</span><br><span class="line">c(<span class="number">2</span>) <span class="comment">//报错</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 等价于</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">c</span>(<span class="params">c</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(c)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">var</span> c</span><br><span class="line">c=<span class="number">1</span> </span><br><span class="line">c(<span class="number">2</span>) <span class="comment">//此时的c是一个变量，所有报错</span></span><br></pre></td></tr></table></figure>
+
+<p>示例二：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">fn1() <span class="comment">//可调用  函数提升</span></span><br><span class="line">fn2() <span class="comment">//不可调用  变量提升</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">fn1</span>(<span class="params"></span>)</span>&#123;...&#125;</span><br><span class="line"><span class="keyword">var</span> fn2=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;...&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-函数"><a href="#3-函数" class="headerlink" title="3 函数"></a>3 函数</h2><p>可执行的对象</p>
+<h3 id="3-1-回调函数"><a href="#3-1-回调函数" class="headerlink" title="3.1 回调函数"></a>3.1 回调函数</h3><p>自定义的非直接调用但最后执行了的函数</p>
+<h3 id="3-2-立即执行函数"><a href="#3-2-立即执行函数" class="headerlink" title="3.2 立即执行函数"></a>3.2 立即执行函数</h3><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">	.....</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+
+<p>作用：1.隐藏实现：直接执行，外部看不见(给window加属性)</p>
+<p>​            2.不会污染外部(全局)命名空间</p>
+<h2 id="4-作用域、执行上下文"><a href="#4-作用域、执行上下文" class="headerlink" title="4 作用域、执行上下文"></a>4 作用域、执行上下文</h2><h3 id="4-1-全局执行上下文"><a href="#4-1-全局执行上下文" class="headerlink" title="4.1 全局执行上下文"></a>4.1 全局执行上下文</h3><p>执行流程：</p>
+<ol>
+<li><p>在执行全局代码前将window确定为全局执行上下文</p>
+</li>
+<li><p>对全局数据<strong>进行预处理</strong></p>
+<p>(1) var定义的全局变量(只是定义，但未赋值，为undefined),添加为window的属性</p>
+<p>(2) function声明的全局函数，添加为window的方法</p>
+<p>(3) this赋值为window</p>
+</li>
+</ol>
+<h3 id="4-2-函数执行上下文"><a href="#4-2-函数执行上下文" class="headerlink" title="4.2 函数执行上下文"></a>4.2 函数执行上下文</h3><p>执行流程：</p>
+<ol>
+<li><p>调用函数，准备执行函数体之前，创建对应的函数执行上下文对象</p>
+</li>
+<li><p>对局部数据<strong>进行预处理</strong></p>
+<p>(1) 形参变量，添加为执行上下文的属性</p>
+<p>(2) arguments，添加为执行上下文的属性</p>
+<p>(3) var定义为局部变量(只是定义，但未赋值)，添加为执行上下文的属性</p>
+<p>(4) function声明的全局函数，添加为window的方法</p>
+<p>(5) this</p>
+</li>
+<li><p>执行函数体代码</p>
+</li>
+</ol>
+<h3 id="4-3-作用域与执行上下文的区别"><a href="#4-3-作用域与执行上下文的区别" class="headerlink" title="4.3 作用域与执行上下文的区别"></a>4.3 作用域与执行上下文的区别</h3><p>区别：</p>
+<p>​    1.作用域在函数定义时就确定了，而不是调用时</p>
+<pre><code>   执行上下文是在函数调用时创建
+</code></pre>
+<p>​    2.作用域为静态，定义后就一直存在，不会变动</p>
+<p>​        执行上下文是调用时创建，函数执行结束就释放</p>
+]]></content>
       <categories>
-          
-          <category> 前端 </category>
-          
+        <category>前端</category>
       </categories>
-      
-      
-        <tags>
-            
-            <tag> js </tag>
-            
-            <tag> 进阶 </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>循环遍历加监听的问题</title>
-      <link href="/2021/10/11/%E5%BE%AA%E7%8E%AF%E9%81%8D%E5%8E%86%E5%8A%A0%E7%9B%91%E5%90%AC/"/>
-      <url>/2021/10/11/%E5%BE%AA%E7%8E%AF%E9%81%8D%E5%8E%86%E5%8A%A0%E7%9B%91%E5%90%AC/</url>
-      
-        <content type="html"><![CDATA[<h2 id="1-用var失败的原因"><a href="#1-用var失败的原因" class="headerlink" title="1 用var失败的原因"></a>1 用var失败的原因</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> btns = <span class="built_in">document</span>.getElementsByTagName(<span class="string">&#x27;button&#x27;</span>);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>;i&lt;btns.length;i++)&#123;</span><br><span class="line">            btns[i].onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">                alert(i);</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure><ul><li>点击监听事件是异步执行的，当点击按钮执行相应函数之前，同步任务(循环)已经执行结束，此时在全局作用域下的 i 已经为固定值。执行alert(i)时，沿着作用域链找到全局作用域下的 i ，导致点击每个按钮得到的结果相同。</li></ul><h2 id="2-解决方法"><a href="#2-解决方法" class="headerlink" title="2 解决方法"></a>2 解决方法</h2><h3 id="2-1-添加属性"><a href="#2-1-添加属性" class="headerlink" title="2.1 添加属性"></a>2.1 添加属性</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>;i&lt;btns.length;i++)&#123;</span><br><span class="line">            btns[i].index = i;</span><br><span class="line">            btns[i].onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">                alert(<span class="built_in">this</span>.index);</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure><p>原理：给每一个按钮绑定一个单独的属性，之后在执行点击监听的异步任务时，通过自己的属性来访问该值，不去访问全局作用域下的 i</p><h3 id="2-2-立即执行函数"><a href="#2-2-立即执行函数" class="headerlink" title="2.2 立即执行函数"></a>2.2 立即执行函数</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> btns = <span class="built_in">document</span>.getElementsByTagName(<span class="string">&#x27;button&#x27;</span>);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>;i&lt;btns.length;i++)&#123;</span><br><span class="line">        (<span class="function"><span class="keyword">function</span> (<span class="params">i</span>) </span>&#123;</span><br><span class="line">            btns[i].onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">                alert(i);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;)(i)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure><p>原理：将每次执行for循环的 i 当作实参传入函数，在外部function函数中的 i 是局部变量，所以每次添加监听的 i 是不同的。由于闭包的原理，i 会一直存在，在执行点击的异步任务时可以访问到每个作用域下的 i</p><h3 id="2-3-用let替换var"><a href="#2-3-用let替换var" class="headerlink" title="2.3 用let替换var"></a>2.3 用let替换var</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> btns = <span class="built_in">document</span>.getElementsByTagName(<span class="string">&#x27;button&#x27;</span>);</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">let</span> i = <span class="number">0</span>;i&lt;btns.length;i++)&#123;</span><br><span class="line">           btns[i].onclick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">               alert(i);</span><br><span class="line">           &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure><p>原理：let发挥效果在块级作用域，每个for循环下的代码都在相互独立的块级作用域下，在执行点击监听函数时，内部function的 i 顺着作用域链不会找到全局作用域去，而是在块级作用域找到每个独立的 i</p>]]></content>
-      
-      
+      <tags>
+        <tag>基础</tag>
+        <tag>js</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>定时器的重复问题</title>
+    <url>/2021/10/17/%E5%AE%9A%E6%97%B6%E5%99%A8%E9%87%8D%E5%A4%8D%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h1 id="定时器的重复问题"><a href="#定时器的重复问题" class="headerlink" title="定时器的重复问题"></a>定时器的重复问题</h1><p>例如，按下键盘右方向键，方块右移</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">var</span> box1=<span class="built_in">document</span>.getElementById(<span class="string">&quot;box1&quot;</span>);</span><br><span class="line">            <span class="keyword">var</span> speed=<span class="number">10</span>;</span><br><span class="line">            <span class="keyword">var</span> dir=<span class="number">0</span>;</span><br><span class="line">            <span class="built_in">setInterval</span>(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(dir===<span class="number">39</span>)</span><br><span class="line">                &#123;</span><br><span class="line">                    box1.style.left=box1.offsetLeft+speed+<span class="string">&quot;px&quot;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,<span class="number">30</span>)</span><br><span class="line">            <span class="built_in">document</span>.onkeydown=<span class="function"><span class="keyword">function</span>(<span class="params">event</span>)</span>&#123;</span><br><span class="line">                event=event||<span class="built_in">window</span>.event;</span><br><span class="line">                dir=event.keyCode;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">document</span>.onkeyup=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">                dir=<span class="number">0</span>;</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果将setInterval放入到document.onkeydown()中，则键盘一直按下时，会触发多个定时器，导致方块移动速度加快。因此，考虑将定时器放到全局中，只触发一次。</p>
+]]></content>
       <categories>
-          
-          <category> 前端 </category>
-          
+        <category>前端</category>
       </categories>
-      
-      
-        <tags>
-            
-            <tag> 基础 </tag>
-            
-            <tag> js </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>BFC与IFC</title>
-      <link href="/2021/10/10/BFC(%E5%9D%97%E7%BA%A7%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%B8%8A%E4%B8%8B%E6%96%87)/"/>
-      <url>/2021/10/10/BFC(%E5%9D%97%E7%BA%A7%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%B8%8A%E4%B8%8B%E6%96%87)/</url>
-      
-        <content type="html"><![CDATA[<h1 id="BFC-块级格式化上下文"><a href="#BFC-块级格式化上下文" class="headerlink" title="BFC(块级格式化上下文)"></a>BFC(块级格式化上下文)</h1><h2 id="1-特点"><a href="#1-特点" class="headerlink" title="1.特点"></a>1.特点</h2><ul><li>盒子是从包含块顶部开始一个挨着一个布局的，盒子垂直方向的距离由margin决定，<strong>属于同一个BFC的两个相邻Box的上下margin会发生重叠</strong>；</li><li>水平方向上，每个盒子的左边缘都会接触包含块的左边缘（从右向左的格式则相反）</li><li>BFC的区域不会与float重叠；</li><li><strong>BFC就是页面上的一个隔离的独立容器</strong>，容器里面的子元素不会影响到外面的元素。反之也如此；</li><li>计算BFC的高度时，浮动元素也参与计算；</li></ul><h2 id="2-产生条件"><a href="#2-产生条件" class="headerlink" title="2.产生条件"></a>2.产生条件</h2><ul><li>float的属性不为none；</li><li>position为absolute或fixed；</li><li>display为inline-block。table-cell，table-caption，flex；</li><li>overflow不为visible(overflow默认值是visible)</li><li>根元素&lt;html&gt;</li></ul><h1 id="IFC-行内格式化上下文"><a href="#IFC-行内格式化上下文" class="headerlink" title="IFC(行内格式化上下文)"></a>IFC(行内格式化上下文)</h1><h2 id="1-行框"><a href="#1-行框" class="headerlink" title="1.行框"></a>1.行框</h2><p>IFC内联元素对齐完之后形成的四方块儿区域，叫做一个line box(行框)。行框不是内联元素的父元素</p><p>宽度：由包含它的元素的宽度和包含它的元素里面有没有float元素来决定（其实就是父元素的宽）</p><p>高度：由内部元素中实际高度最高的元素而计算出来。</p><h2 id="2-特点"><a href="#2-特点" class="headerlink" title="2.特点"></a>2.特点</h2><ul><li><p>高度计算：由line-height决定(line-height是vertical-align参考的边界值)</p></li><li><p>水平排列，margin，padding，border可以设置，但垂直方向上不算入高度。但无法设置width和height</p></li><li><p>垂直居中：当父元素没有设置高度时，内部所有元素(内联元素)设置verticle-align:middle后，将会居中对齐</p><p>​                    当设置了父元素高度后，内联元素居中对齐，但整体没有在父元素中居中。整体设置line-height=父元素height后(此时IFC高度等于父元素高度)才会在父元素上居中对齐</p><p>​                    (某个内联元素的高&lt;行框高，垂直方向上的位置由verticle-align决定)</p></li><li><p>水平居中：设置父元素为text-align：center；</p><p>(行框的宽&gt;行框中内联元素的宽，水平方向上的位置由text-align决定)</p></li></ul><h2 id="3-产生条件"><a href="#3-产生条件" class="headerlink" title="3.产生条件"></a>3.产生条件</h2><ul><li>font-size</li><li>line-height</li><li>height</li><li>verticle-align</li><li>display：inline-block和line</li></ul><h1 id="清除浮动"><a href="#清除浮动" class="headerlink" title="清除浮动"></a>清除浮动</h1><p>参考地址：<a href="https://www.cnblogs.com/lauzhishuai/p/10953608.html">https://www.cnblogs.com/lauzhishuai/p/10953608.html</a></p><h2 id="1-为什么要清除浮动"><a href="#1-为什么要清除浮动" class="headerlink" title="1.为什么要清除浮动"></a>1.为什么要清除浮动</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;topDiv&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;floatDiv&quot;</span>&gt;</span>float left<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;textDiv&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;bottomDiv&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure><p><img src="../images/image-20211010222612549.png" alt="image-20211010222612549"></p><p>上图为不清除浮动所造成的问题：</p><ol><li>由于.textDiv两旁存在浮动，蓝色文字围绕浮动元素排列，但我们可能希望文字在下方单独排列。</li><li>浮动元素超出父元素的高度，并没有撑开父元素，若没有.textDiv，则父元素的高度将会为0。</li><li>浮动元素影响了父元素的兄弟元素(黑色文本)的排版。</li></ol><h2 id="2-清除浮动的方法"><a href="#2-清除浮动的方法" class="headerlink" title="2.清除浮动的方法"></a>2.清除浮动的方法</h2><h3 id="2-1-利用clear"><a href="#2-1-利用clear" class="headerlink" title="2.1 利用clear"></a>2.1 利用clear</h3><p>给需要清除浮动的元素添加如下样式：</p><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.textDiv</span> &#123;</span><br><span class="line">    <span class="attribute">color</span>: blue;</span><br><span class="line">    <span class="attribute">border</span>: <span class="number">2px</span> solid blue;</span><br><span class="line">    <span class="attribute">clear</span>: left;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><ul><li>缺点：如果产生浮动的元素在文本后面，则此方法不行，就算用了clear:right也不行。</li></ul><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;topDiv&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;textDiv&quot;</span>&gt;</span>..........<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;floatDiv&quot;</span>&gt;</span>float left<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;bottomDiv&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure><p>可以用如下方法</p><h3 id="2-2-添加空白块级元素"><a href="#2-2-添加空白块级元素" class="headerlink" title="2.2 添加空白块级元素"></a>2.2 添加空白块级元素</h3><p>在父级元素末尾插入一个没有内容的<strong>块级元素</strong>(一定要是块级元素)div，并清除周边浮动</p><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;topDiv&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;textDiv&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;floatDiv&quot;</span>&gt;</span>float left<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;blankDiv&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;bottomDiv&quot;</span>&gt;</span>...<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.blankDiv</span> &#123;</span><br><span class="line">    <span class="attribute">clear</span>: both;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h3 id="2-3-利用伪元素"><a href="#2-3-利用伪元素" class="headerlink" title="2.3 利用伪元素"></a>2.3 利用伪元素</h3><p>在父元素上添加一个类(如下)，通过伪元素在需要清除浮动的元素的父元素末尾添加一个块来清除浮动。(原理同2.2)</p><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.clearfix</span>:after &#123;</span><br><span class="line">    content: <span class="string">&#x27;.&#x27;</span>;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">0</span>;</span><br><span class="line">    <span class="attribute">display</span>: block;</span><br><span class="line">    <span class="attribute">clear</span>: both;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h3 id="2-4-利用BFC"><a href="#2-4-利用BFC" class="headerlink" title="2.4 利用BFC"></a>2.4 利用BFC</h3><p>将需要清除浮动的元素的父元素设置为BFC，BFC的一条特性为：计算BFC的高度时，浮动元素也参与计算。</p><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.topDiv</span> &#123;</span><br><span class="line">    <span class="attribute">width</span>: <span class="number">500px</span>;</span><br><span class="line">    <span class="attribute">padding</span>: <span class="number">4px</span>;</span><br><span class="line">    <span class="attribute">border</span>: <span class="number">2px</span> solid black;</span><br><span class="line"> </span><br><span class="line">    <span class="attribute">overflow</span>: auto; //此时产生BFC</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-      
-      
+      <tags>
+        <tag>基础</tag>
+        <tag>js</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>async 与await</title>
+    <url>/2021/10/17/async%E4%B8%8Eawait/</url>
+    <content><![CDATA[<h1 id="async-与await"><a href="#async-与await" class="headerlink" title="async 与await"></a>async 与await</h1><h3 id="1-async-与await"><a href="#1-async-与await" class="headerlink" title="1. async 与await"></a>1. async 与await</h3><ul>
+<li>async修饰的函数，返回值会以Promise对象的形式返回</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;aaaa&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">console</span>.log(test()) <span class="comment">//返回值为  Promise &#123;&#x27;aaaa&#x27;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在async修饰的函数中，通过await，得到的async修饰的函数的返回值将不会是Promise对象</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;aaaa&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">main</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> data=<span class="keyword">await</span> test()</span><br><span class="line">    <span class="built_in">console</span>.log(data) <span class="comment">//返回值为 &#x27;aaaa&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>综上所述，获取异步数据：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">var</span> name = <span class="string">&#x27;yzy&#x27;</span></span><br><span class="line">      resolve(name)</span><br><span class="line">    &#125;, <span class="number">1000</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">main</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> data = <span class="keyword">await</span> test()</span><br><span class="line">  <span class="built_in">console</span>.log(data) <span class="comment">//返回值为 &#x27;yzy&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">main()</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-原理"><a href="#2-原理" class="headerlink" title="2.原理"></a>2.原理</h3><p>​        当 async 函数执行到 await 的时候，会暂停整个async函数的执行进程并出让其控制权，只有当其等待的基于Promise 的异步操作被兑现或被拒绝之后才会恢复进程，由于该过程为异步操作，所以会先跳出该async函数执行其他代码，再回到await处。</p>
+<p>​        即遇到await会阻塞后面的代码，但await会先执行所修饰函数中的同步任务，先执行async外面的同步代码，同步代码执行完，再回到async内部，继续执行await后面的代码。(也就是说，await只会阻塞当前async方法内的代码，不会影响外部代码的执行)</p>
+<p>例子：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">test</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;222&#x27;</span>)</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">       resolve(<span class="string">&#x27;444&#x27;</span>)</span><br><span class="line">    &#125;, <span class="number">1000</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">test2</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;111&#x27;</span>)</span><br><span class="line">  <span class="keyword">let</span> res = <span class="keyword">await</span> test()</span><br><span class="line">  <span class="built_in">console</span>.log(res)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">test2()</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">&#x27;333&#x27;</span>)</span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">&#x27;555&#x27;</span>)</span><br><span class="line">&#125;, <span class="number">1000</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">//执行顺序：111 222 333 444 555</span></span><br></pre></td></tr></table></figure>
+
+]]></content>
       <categories>
-          
-          <category> 前端 </category>
-          
+        <category>前端</category>
       </categories>
-      
-      
-        <tags>
-            
-            <tag> html </tag>
-            
-            <tag> 基础 </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-  
-  
+      <tags>
+        <tag>js</tag>
+        <tag>进阶</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>初始HTML文件的语句解析</title>
+    <url>/2021/10/18/HTML%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E8%A7%A3%E6%9E%90/</url>
+    <content><![CDATA[<h1 id="HTML文件各个语句的解析"><a href="#HTML文件各个语句的解析" class="headerlink" title="HTML文件各个语句的解析"></a>HTML文件各个语句的解析</h1><h2 id="HTML"><a href="#HTML" class="headerlink" title="HTML"></a>HTML</h2><p>HTML：超文本标记语言</p>
+<p>超文本：在文档的的任意地方与某些信息(文本、图片等)建立联系</p>
+<p>标记语言：通过在文档某部分穿插标签来修饰文档的语言</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en-zh&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">&quot;X-UA-Compatible&quot;</span> <span class="attr">content</span>=<span class="string">&quot;IE=edge&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&quot;viewport&quot;</span> <span class="attr">content</span>=<span class="string">&quot;width=device-width, initial-scale=1.0&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Document<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="1-lt-DOCTYPE-gt"><a href="#1-lt-DOCTYPE-gt" class="headerlink" title="1. &lt;!DOCTYPE&gt;"></a>1. &lt;!DOCTYPE&gt;</h2><ul>
+<li>不是一个html标签，是用来告诉浏览器该页面是使用哪个版本的html版本进行编写的，且所有浏览器都支持&lt;!DOCTYPE&gt;声明。</li>
+<li>&lt;!DOCTYPE html&gt;是使用html5的声明</li>
+</ul>
+<h2 id="2-lt-html-lang-”en”-gt"><a href="#2-lt-html-lang-”en”-gt" class="headerlink" title="2. &lt;html lang=”en”&gt;"></a>2. &lt;html lang=”en”&gt;</h2><p>告诉浏览器该页面是html语言，并且语言为英文网站，其”lang”的意思就是“language”，而“en”即表示english，”zh“表示中文网站，也可以写作”en-zh“</p>
+<h2 id="3-lt-head-gt"><a href="#3-lt-head-gt" class="headerlink" title="3.&lt;head&gt;"></a>3.&lt;head&gt;</h2><p>文档的头部描述了文档的各种属性和信息,&lt;head&gt; 中的元素可以引用脚本、指示浏览器在哪里找到样式表、提供信息等等。</p>
+<h2 id="4-lt-meta-gt"><a href="#4-lt-meta-gt" class="headerlink" title="4.&lt;meta&gt;"></a>4.&lt;meta&gt;</h2><p>&lt;meta&gt; 元素可提供有关页面的元信息</p>
+<ul>
+<li><p>元信息：可以用元信息来实现有条件请求以及报告事务完成。收到数据的浏览器可以根据元信息确定服务器发来的是什么内容，预料有什么数据，确知是否接收完整的数据，以及过程中是否出错，这样客户就可以知道传输对象的类型。</p>
+</li>
+<li><p>&lt;meta&gt;元素属性值</p>
+<p><img src="/2021/10/18/HTML%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E8%A7%A3%E6%9E%90/Users\Unseenblade\AppData\Roaming\Typora\typora-user-images\image-20210905211632140.png" alt="image-20210905211632140"></p>
+</li>
+</ul>
+<h3 id="4-1-lt-meta-charset-”UTF-8”-gt"><a href="#4-1-lt-meta-charset-”UTF-8”-gt" class="headerlink" title="4.1 &lt;meta charset=”UTF-8”&gt;"></a>4.1 &lt;meta charset=”UTF-8”&gt;</h3><ul>
+<li>charset 属性规定 HTML 文档的字符编码。且可通过任意元素的lang属性来进行重写。</li>
+<li>使用charset=”UTF-8”告诉浏览器采用UTF-8进行编码。防止出现一些乱码</li>
+</ul>
+<h3 id="4-2-lt-meta-http-equiv-”X-UA-Compatible”-content-”IE-edge”-gt"><a href="#4-2-lt-meta-http-equiv-”X-UA-Compatible”-content-”IE-edge”-gt" class="headerlink" title="4.2  &lt;meta http-equiv=”X-UA-Compatible” content=”IE=edge”&gt;"></a>4.2  &lt;meta http-equiv=”X-UA-Compatible” content=”IE=edge”&gt;</h3><ul>
+<li>X-UA-Compatible是针对IE8新加的一个设置，对于IE8之外的浏览器是不识别的。用来兼容IE8及以下版本的浏览器</li>
+<li>”IE=edge“通知 Windows Internet Explorer 以最高级别的可用模式显示内容，即如果你有IE9的话说明你有IE789，那么就调用高版本的那个也就是IE9。</li>
+</ul>
+<h3 id="4-3-lt-meta-name-”viewport”-content-”width-device-width-initial-scale-1-0”-gt"><a href="#4-3-lt-meta-name-”viewport”-content-”width-device-width-initial-scale-1-0”-gt" class="headerlink" title="4.3 &lt;meta name=”viewport” content=”width=device-width, initial-scale=1.0”&gt;"></a>4.3 &lt;meta name=”viewport” content=”width=device-width, initial-scale=1.0”&gt;</h3><ul>
+<li><p>name=”viewport”用来为移动端设备设置一些信息</p>
+</li>
+<li><p>&lt;meta name=”viewport”  content=”属性名=属性值”&gt;</p>
+<p><img src="/2021/10/18/HTML%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E8%A7%A3%E6%9E%90/Users\Unseenblade\AppData\Roaming\Typora\typora-user-images\image-20210905213727622.png" alt="image-20210905213727622"></p>
+</li>
+</ul>
+<h2 id="5-lt-title-gt"><a href="#5-lt-title-gt" class="headerlink" title="5. &lt;title&gt;"></a>5. &lt;title&gt;</h2><p>定义文档标题</p>
+<h2 id="6-lt-body-gt"><a href="#6-lt-body-gt" class="headerlink" title="6. &lt;body&gt;"></a>6. &lt;body&gt;</h2><p>定义文档的主体，包含所有的内容</p>
+<h2 id="7-lt-script-gt"><a href="#7-lt-script-gt" class="headerlink" title="7.&lt;script&gt;"></a>7.&lt;script&gt;</h2><p>定义客户端脚本，可包含脚本语言或者引入外部脚本文件，如JavaScript</p>
+<ul>
+<li>行内样式和使用了src不能同时使用，若同时存在则不会执行行内代码</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">属性</th>
+<th align="left">解析</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">src</td>
+<td align="left">浏览器解析这个资源时，会向指定路径发送一个GET请求</td>
+</tr>
+<tr>
+<td align="center">defer</td>
+<td align="left">只对外部脚本文件有效。浏览器会立即开始下载，但是当页面解析完成后再执行(执行到&lt;/html&gt;后再执行).</td>
+</tr>
+</tbody></table>
+<h2 id="8-window-onload-function-…"><a href="#8-window-onload-function-…" class="headerlink" title="8.window.onload=(function(){….})"></a>8.window.onload=(function(){….})</h2><ul>
+<li>把“匿名函数”赋值给window的onload事件属性,onload是window窗口对象的事件属性</li>
+<li>当window加载完成时(<strong>文档 DOM 加载完毕</strong>)会触发onload事件，也就触发了“匿名函数”，执行函数体内的语句。否则执行script语句时dom元素还没渲染出来(获取不到)发生错误</li>
+</ul>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>基础</tag>
+        <tag>HTML</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>浏览器渲染过程</title>
+    <url>/2021/10/18/%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B8%B2%E6%9F%93%E8%BF%87%E7%A8%8B/</url>
+    <content><![CDATA[<h1 id="浏览器渲染过程"><a href="#浏览器渲染过程" class="headerlink" title="浏览器渲染过程"></a>浏览器渲染过程</h1><p>参考地址：<a href="https://zhuanlan.zhihu.com/p/79881310">https://zhuanlan.zhihu.com/p/79881310</a></p>
+<h2 id="1-大致过程："><a href="#1-大致过程：" class="headerlink" title="1. 大致过程："></a><strong>1. 大致过程：</strong></h2><ol>
+<li>构建对象模型(DOM树、CSSOM树)</li>
+<li>构建渲染树(Render树)</li>
+<li>布局</li>
+<li>渲染</li>
+</ol>
+<p><img src="/2021/10/18/%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B8%B2%E6%9F%93%E8%BF%87%E7%A8%8B/Users\Unseenblade\AppData\Roaming\Typora\typora-user-images\image-20210925195942219.png" alt="image-20210925195942219"></p>
+<h2 id="2-详细过程："><a href="#2-详细过程：" class="headerlink" title="2. 详细过程："></a><strong>2. 详细过程：</strong></h2><h3 id="2-1获取文件"><a href="#2-1获取文件" class="headerlink" title="2.1获取文件"></a>2.1获取文件</h3><ol>
+<li><p>通过DNS(域名解析)将输入的url地址转换为IP地址，通过IP地址到相应主机上获取文件</p>
+</li>
+<li><p>浏览器将通过域名以及网络通信从服务器拿到html文件、或者直接从磁盘中读取到html文件。(此时的html文件还是计算机的字节语言)</p>
+</li>
+<li><p>通过浏览器的html解析模块进行文本的解释，通过charset编码转换成相应字符</p>
+</li>
+</ol>
+<p><img src="/2021/10/18/%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B8%B2%E6%9F%93%E8%BF%87%E7%A8%8B/Users\Unseenblade\AppData\Roaming\Typora\typora-user-images\image-20210925200417596.png" alt="image-20210925200417596"></p>
+<ol start="4">
+<li>通过词法分析器，将字符串解析成Token，Token中会标注出当前Token的开始标签、结束标签、文本标签等</li>
+</ol>
+<p><img src="/2021/10/18/%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B8%B2%E6%9F%93%E8%BF%87%E7%A8%8B/Users\Unseenblade\AppData\Roaming\Typora\typora-user-images\image-20210925200636645.png" alt="image-20210925200636645"></p>
+<h3 id="2-2构建DOM树和CSSOM树"><a href="#2-2构建DOM树和CSSOM树" class="headerlink" title="2.2构建DOM树和CSSOM树"></a>2.2构建DOM树和CSSOM树</h3><p><strong>两者之间是同时执行的</strong></p>
+<ol>
+<li>浏览器通过DOM/CSS模块对Tokens记录的标签进行串联，跟Token来生成结点，以此来生成DOM树，<strong>同时，Tokens的转换和DOM树的建立是同时执行的</strong></li>
+</ol>
+<p><img src="/2021/10/18/%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B8%B2%E6%9F%93%E8%BF%87%E7%A8%8B/Users\Unseenblade\AppData\Roaming\Typora\typora-user-images\image-20210925210834971.png" alt="image-20210925210834971"></p>
+<ol start="2">
+<li><p>在上述解析的过程中，如果遇到link和script，就会根据src对应的地址去加载资源。CSSOM树的生成过程和DOM的生成过程十分相似，通过link获取CSS文件之后：1.解析，2.Token化，3.生成Nodes并构建CSSOMTree。</p>
+<p>注意：<strong>CSSOMTree需要等到完全构建后才可以被使用，因为后面的属性可能会覆盖掉前面的设置</strong></p>
+<p><img src="/2021/10/18/%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B8%B2%E6%9F%93%E8%BF%87%E7%A8%8B/Users\Unseenblade\AppData\Roaming\Typora\typora-user-images\image-20210925211455845.png" alt="image-20210925211455845"></p>
+</li>
+<li><p>如果JS试图在<strong>浏览器还未完成CSSOMTree的下载和构建</strong>时去操作CSS样式，浏览器会<strong>暂停脚本的运行和DOM的构建</strong>，直至浏览器完成了CSSOM的下载和构建。也就是说，<strong>JS脚本的出现会让CSSOM的构建阻塞DOM的构建</strong>。</p>
+</li>
+</ol>
+<p><img src="/2021/10/18/%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B8%B2%E6%9F%93%E8%BF%87%E7%A8%8B/Users\Unseenblade\AppData\Roaming\Typora\typora-user-images\image-20210925212318668.png" alt="image-20210925212318668"></p>
+<pre><code> 在HTML文档的中间插中入了一段JS代码，在DOM构建中间的过程中发现了script标签，这段JS代码只需要执行0.0001s
+</code></pre>
+<p><img src="/2021/10/18/%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B8%B2%E6%9F%93%E8%BF%87%E7%A8%8B/Users\Unseenblade\AppData\Roaming\Typora\typora-user-images\image-20210925212328787.png" alt="image-20210925212328787"></p>
+<p>​    如果把css放到前面，js放到最后引入时，构建时间会变成：</p>
+<p><img src="/2021/10/18/%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B8%B2%E6%9F%93%E8%BF%87%E7%A8%8B/Users\Unseenblade\AppData\Roaming\Typora\typora-user-images\image-20210925212602859.png" alt="image-20210925212602859"></p>
+<p>当浏览器遇到一个script标签时，DOMTree的构建将被暂停，直至脚本执行完毕</p>
+<p>JavaScript可以查询和修改DOMTree与CSSOMTree</p>
+<p>直至CSSOM构建完毕，JavaScript才会执行</p>
+<p>脚本在文档中的位置很重要</p>
+<h3 id="2-3渲染树的构建-RenderTree"><a href="#2-3渲染树的构建-RenderTree" class="headerlink" title="2.3渲染树的构建(RenderTree)"></a>2.3渲染树的构建(RenderTree)</h3><p>通过DOMTree和CSSOMTree构成RenderTree</p>
+<p><img src="/2021/10/18/%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B8%B2%E6%9F%93%E8%BF%87%E7%A8%8B/Users\Unseenblade\AppData\Roaming\Typora\typora-user-images\image-20210925213409673.png" alt="image-20210925213409673"></p>
+<p>​        三者的构建并无先后条件，亦非完全独立，而是会有交叉，并行构建。因此会形成<strong>一边加载，一边解析，一边渲染</strong>的工作现象。构建渲染树，根据渲染树计算每个<strong>可见元素</strong>的布局，并输出到绘制流程，将像素渲染到屏幕上。(CSSOM构建完成才能渲染)</p>
+<p>​        可见元素不包括：</p>
+<pre><code>    1. 一些不会体现在渲染输出中的节点（`&lt;html&gt;&lt;script&gt;&lt;link&gt;….`），会直接被忽略掉。
+    2. 通过CSS隐藏的节点。`display:none`属性，那么它在生成Render树时会被直接忽略掉。
+</code></pre>
+<ul>
+<li><p>Render 树是衔接浏览器排版引擎和渲染引擎之间的<strong>桥梁</strong>，它是<strong>排版引擎的输出，渲染引擎的输入</strong>。</p>
+<p>浏览器会为一些<strong>特定</strong>的<code>RenderObject</code>生成对应的<code>RenderLayer</code>，其中的规则是：</p>
+<ul>
+<li>是否是页面的根节点 <em>It’s the root object for the page</em></li>
+<li>是否有css的一些布局属性（relative absolute or a transform) <em>It has explicit CSS position properties (relative, absolute or a transform)</em></li>
+<li>是否透明 <em>It is transparent</em></li>
+<li>是否有溢出 <em>Has overflow, an alpha mask or reflection</em></li>
+<li>是否有css滤镜 <em>Has a CSS filter</em></li>
+<li>是否包含一个canvas元素使得节点拥有视图上下文 <em>Corresponds to canvas element that has a 3D (WebGL) context or an accelerated 2D context</em></li>
+<li>是否包含一个video元素 <em>Corresponds to a video element</em></li>
+</ul>
+</li>
+</ul>
+<p>浏览器渲染引擎在布局和渲染时会遍历整个Layer树，访问每一个<code>RenderLayer</code>，再遍历从属于这个RenderLayer的 <code>RrenderObject</code>，将每一个 RenderObject 绘制出来。可以理解为：Layer 树决定了网页绘制的层次顺序，而从属于RenderLayer 的 RrenderObject决定了这个 Layer 的内容，所有的 <code>RenderLayer</code> 和 <code>RrenderObject</code> 一起就决定了网页在屏幕上最终呈现出来的内容。</p>
+<h3 id="2-4-布局和渲染"><a href="#2-4-布局和渲染" class="headerlink" title="2.4 布局和渲染"></a>2.4 布局和渲染</h3><ol>
+<li>到目前为止，浏览器计算出了哪些节点是可见的以及它的信息和样式，接下来就需要计算这些节点在设备视口内的确切位置和大小，这个过程我们称之为“布局”。</li>
+<li>既然知道了哪些节点可见、它们的计算样式以及几何信息，我们终于可以将这些信息传递给最后一个阶段：将渲染树中的每个节点转换成屏幕上的实际像素：浏览器通过发出“Paint Setup”和“Paint”事件，将渲染树转换成屏幕上的像素。</li>
+</ol>
+<h3 id="2-5-页面重绘与重排"><a href="#2-5-页面重绘与重排" class="headerlink" title="2.5 页面重绘与重排"></a>2.5 页面重绘与重排</h3><p>重绘（repaint）：屏幕的一部分要重绘。渲染树节点发生改变，但不影响该节点在页面当中的空间位置及大小。譬如某个div标签节点的背景颜色、字体颜色等等发生改变，但是该div标签节点的宽、高、内外边距并不发生变化，此时触发浏览器重绘（repaint）。</p>
+<p>重排（reflow）：也有称回流，当渲染树节点发生改变，影响了节点的几何属性（如宽、高、内边距、外边距、或是float、position、display：none;等等），导致节点位置发生变化，此时触发浏览器重排（reflow），需要重新生成渲染树。譬如JS为某个p标签节点添加新的样式：”display:none;”。导致该p标签被隐藏起来，该p标签之后的所有节点位置都会发生改变。此时浏览器需要重新生成渲染树，重新布局，即重排（reflow）。</p>
+<h2 id="3-总结"><a href="#3-总结" class="headerlink" title="3.总结"></a>3.总结</h2><ul>
+<li>经过：1.构建对象模型（DOM，CSSOM），2.构建渲染树（RenderTree），3.布局，4.渲染 </li>
+<li>由于CSSOMTree需要被加载完成才能使用，所以CSS被视为阻塞渲染的资源(但不会阻塞DOMTree的构建)，应放到代码的头部尽快加载。</li>
+<li>同步的JavaScript会暂停DOMTree的构建，应放到代码的尾部最后加载，或者使用<code>async/defer属性</code>异步加载JavaScript。</li>
+<li>重排和重绘会给浏览器渲染线程造成很大的负担，尽量减少重排和重绘的触发次数</li>
+</ul>
+]]></content>
+      <categories>
+        <category>前端</category>
+      </categories>
+      <tags>
+        <tag>浏览器</tag>
+      </tags>
+  </entry>
 </search>
